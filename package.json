@@ -1,0 +1,12 @@
+{
+  "name": "@jsona/editor",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "sigoden <sigoden@gmail.com>",
+  "license": "MIT",
+  "private": true,
+  "workspaces": [
+    "packages/monaco-jsona",
+    "packages/apps"
+  ]
+}
