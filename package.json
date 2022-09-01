@@ -8,5 +8,12 @@
   "workspaces": [
     "packages/monaco-jsona",
     "packages/apps"
-  ]
+  ],
+  "scripts": {
+    "postinstall": "patch-package"
+  },
+  "devDependencies": {
+    "patch-package": "^6.4.7",
+    "postinstall-postinstall": "^2.1.0"
+  }
 }

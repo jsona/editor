@@ -1,0 +1,11 @@
+diff --git a/node_modules/monaco-editor/esm/vs/base/common/marked/marked.js b/node_modules/monaco-editor/esm/vs/base/common/marked/marked.js
+index 545a093..8e38a82 100644
+--- a/node_modules/monaco-editor/esm/vs/base/common/marked/marked.js
++++ b/node_modules/monaco-editor/esm/vs/base/common/marked/marked.js
+@@ -3055,5 +3055,5 @@ let __marked_exports = {};
+ 
+ // ESM-uncomment-begin
+ })();
+-export var marked = (__marked_exports || exports);
++export var marked = exports;
+ // ESM-uncomment-end
