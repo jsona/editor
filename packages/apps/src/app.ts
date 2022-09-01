@@ -1,9 +1,15 @@
 import { customElement } from 'lit/decorators.js';
-import { LitElement, html } from 'lit';
+import { LitElement, html, css } from 'lit';
 import "./code-editor";
 
 @customElement('my-app')
 export class MyApp extends LitElement {
+  static styles = css`
+    code-editor {
+      --editor-width: 100%;
+      --editor-height: 90vh;
+    }
+  `;
   render() {
     return html`
       <div>

@@ -17,9 +17,13 @@ export class CodeEditor extends LitElement {
   @property() lang: string;
 
   static styles = css`
+    :host {
+      --editor-width: 100%;
+      --editor-height: 100vh;
+    }
     main {
-      width: 90vh;
-      height: 90vh;
+      width: var(--editor-width);
+      height: var(--editor-height);
     }
   `;
 
