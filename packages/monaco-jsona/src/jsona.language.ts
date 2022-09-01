@@ -1,7 +1,9 @@
 import type { languages } from "monaco-editor";
 
+export const LANG_ID = "jsona";
+
 export const extensionPoint: languages.ILanguageExtensionPoint = {
-	id: 'jsona',
+	id: LANG_ID,
 	extensions: ['.jsona'],
 	aliases: ['JSONA', 'Jsona', 'jsona'],
 	mimetypes: ['text/x-jsona'],

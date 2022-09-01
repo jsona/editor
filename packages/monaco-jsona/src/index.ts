@@ -2,24 +2,52 @@ import { MonacoLanguageClient, CloseAction, ErrorAction, MonacoServices, Message
 import { BrowserMessageReader, BrowserMessageWriter } from 'vscode-languageserver-protocol/browser';
 import { StandaloneServices } from 'vscode/services';
 import type Monaco from 'monaco-editor';
-import { extensionPoint, languageConfiguration, monarchLanguage } from "./jsona.language";
+import { LANG_ID, extensionPoint, languageConfiguration, monarchLanguage } from "./jsona.language";
 import getNotificationServiceOverride from 'vscode/service-override/notifications'
 import getDialogsServiceOverride from 'vscode/service-override/dialogs'
 export { MonacoLanguageClient };
 
+export { LANG_ID };
+
 export function register(monaco: typeof Monaco) {
   monaco.languages.register(extensionPoint);
-  monaco.languages.setMonarchTokensProvider(extensionPoint.id, monarchLanguage);
-  monaco.languages.setLanguageConfiguration(extensionPoint.id, languageConfiguration);
+  monaco.languages.onLanguage(LANG_ID, async () => {
+    monaco.languages.setMonarchTokensProvider(LANG_ID, monarchLanguage);
+    monaco.languages.setLanguageConfiguration(LANG_ID, languageConfiguration);
+  });
+}
+
+export const currentDocUris: Set<string> = new Set();
+
+
+export const DEFAULT_CONFIGURATION = {
+  "schema": {
+    "enabled": true,
+    "associations": {
+    },
+    "storeUrl": "https://cdn.jsdelivr.net/npm/@jsona/schemastore@latest/index.json",
+    "cache": false
+  },
+  "formatter": {
+    "indentString": "  ",
+    "trailingNewline": false,
+    "trailingComma": false,
+    "formatKey": false
+  }
 }
 
 export interface StartLspOptions {
   worker: Worker,
   debug: boolean,
-  getDocUris: () => string[],
+  configuration?: typeof DEFAULT_CONFIGURATION,
 }
 
+let languageClient: MonacoLanguageClient;
+
 export function startLsp(options: StartLspOptions) {
+  if (languageClient) {
+    return languageClient;
+  }
   console.log("start jsona lsp");
   StandaloneServices.initialize({
     ...getNotificationServiceOverride(),
@@ -28,39 +56,18 @@ export function startLsp(options: StartLspOptions) {
   MonacoServices.install();
   const reader = new BrowserMessageReader(options.worker);
   const writer = new BrowserMessageWriter(options.worker);
-  const languageClient = createLanguageClient({ reader, writer });
-  languageClient.start();
+  languageClient = createLanguageClient({ reader, writer });
   languageClient.sendNotification("internal/setup", { debug: options.debug });
   languageClient.onNotification("jsona/initializeWorkspace", async () => {
-    for (const documentUri of options.getDocUris()) {
+    for (const documentUri of currentDocUris) {
       await languageClient.sendRequest("jsona/associatedSchema", { documentUri });
     }
   });
   languageClient.onRequest("workspace/configuration", async (parmas) => {
-    return Array.from(Array(parmas.length)).map(() => ({
-      "executable": {
-        "bundled": false,
-        "path": null,
-        "environment": {},
-        "extraArgs": null
-      },
-      "schema": {
-        "enabled": true,
-        "associations": {
-        },
-        "storeUrl": "https://cdn.jsdelivr.net/npm/@jsona/schemastore@latest/index.json",
-        "cache": false
-      },
-      "formatter": {
-        "indentString": "  ",
-        "trailingNewline": false,
-        "trailingComma": false,
-        "formatKey": false
-      }
-    }));
+    return Array.from(Array(parmas.length)).map(() => options.configuration ?? DEFAULT_CONFIGURATION);
   });
+  languageClient.start();
   reader.onClose(() => languageClient.stop());
-
   return languageClient;
 }
 
