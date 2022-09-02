@@ -12,7 +12,7 @@ const writer = new BrowserMessageWriter(worker);
 const reader = new BrowserMessageReader(worker);
 
 let jsona: JsonaLsp;
-let rootUri = "root:///";
+let rootUri = "file:///";
 
 let com = {
   idx: -1,

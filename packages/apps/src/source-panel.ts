@@ -1,4 +1,5 @@
-import { customElement } from 'lit/decorators.js';
+import { customElement, state } from 'lit/decorators.js';
+import { until } from 'lit/directives/until.js';
 import { html, LitElement } from 'lit';
 import './code-editor';
 import './tab-bar';
@@ -10,6 +11,9 @@ export class SourcePanel extends LitElement {
     bsStyle,
   ]
 
+  @state()
+  private data: Promise<string> = fetchData();
+
   protected render() {
     return html`
       <div class="d-flex">
@@ -18,20 +22,27 @@ export class SourcePanel extends LitElement {
           <button type="button" class="btn btn-outline-primary" @click=${this._run}>run</button>
         </div>
       </div>
-      <code-editor 
-        height="90vh"
-        code=${``} 
-        lang="plaintext" 
-        path=${"file:///source.txt"}
-        .options=${{
-          glyphMargin: true,
-          automaticLayout: true,
-          lightbulb: {
-            enabled: true
-          },
-        }}
-        @execute=${this._run}
-      ></code-editor>
+      ${until(
+        this.data.then(code => {
+          return html`
+            <code-editor 
+              height="90vh"
+              code=${code} 
+              lang="jsona" 
+              path=${"file:///source.jsona"}
+              .options=${{
+                glyphMargin: true,
+                automaticLayout: true,
+                lightbulb: {
+                  enabled: true
+                },
+              }}
+              @execute=${this._run}
+            ></code-editor>
+          `
+        }),
+        html`<span>Loading...</span>`
+      )}
     `
   }
 
@@ -43,5 +54,20 @@ export class SourcePanel extends LitElement {
 declare global {
   interface HTMLElementTagNameMap {
     'source-panel': SourcePanel;
+  }
+}
+
+async function fetchData() {
+  const params = new URLSearchParams(window.location.search);
+  const source = params.get("source");
+  if (!source) {
+    return '';
+  }
+  try {
+    const res = await fetch(source)
+    return res.text();
+  } catch (err) {
+    // TODO show toast
+    return '';
   }
 }

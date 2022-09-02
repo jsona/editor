@@ -4,8 +4,8 @@ import { bsStyle } from "./shareStyles";
 import './header-bar';
 import './source-panel';
 
-@customElement('core-app')
-export class CoreApp extends LitElement {
+@customElement('app-core')
+export class AppCore extends LitElement {
   static styles = [
     bsStyle,
     css`
