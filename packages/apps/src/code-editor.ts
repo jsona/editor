@@ -9,8 +9,8 @@ import jsonaWorker from "monaco-jsona/dist/jsona.worker.js?worker";
 
 @customElement('code-editor')
 export class CodeEditor extends LitElement {
-  container = createRef<HTMLDivElement>();
-  editor?: monaco.editor.IStandaloneCodeEditor;
+  private container = createRef<HTMLDivElement>();
+  private editor?: monaco.editor.IStandaloneCodeEditor;
 
   @property() path: string;
   @property() code: string;
@@ -27,7 +27,7 @@ export class CodeEditor extends LitElement {
     }
   `;
 
-  render() {
+  protected render() {
     return html`
       <style>
         ${styles}
@@ -36,7 +36,7 @@ export class CodeEditor extends LitElement {
     `;
   }
 
-  connectedCallback() {
+  public connectedCallback() {
     super.connectedCallback();
     if (this.lang == LANG_ID) {
       let worker = new jsonaWorker();
@@ -49,7 +49,12 @@ export class CodeEditor extends LitElement {
     }
   }
 
-  firstUpdated() {
+  public disconnectedCallback(): void {
+    currentDocUris.delete(this.path);
+    this.editor?.dispose();
+  }
+
+  protected firstUpdated() {
     const uri = monaco.Uri.parse(this.path);
     this.editor = monaco.editor.create(this.container.value!, {
       model: monaco.editor.getModel(uri) || monaco.editor.createModel(this.code, this.lang, uri),
@@ -59,21 +64,6 @@ export class CodeEditor extends LitElement {
       }
     })
   }
-
-  disconnectedCallback(): void {
-    currentDocUris.delete(this.path);
-    this.editor?.dispose();
-  }
-
-  setValue(value: string) {
-    this.editor!.setValue(value);
-  }
-
-  getValue() {
-    const value = this.editor!.getValue();
-    return value;
-  }
-
 }
 
 declare global {

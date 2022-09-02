@@ -10,10 +10,10 @@ export class MyApp extends LitElement {
       --editor-height: 90vh;
     }
   `;
-  render() {
+  protected render() {
     return html`
       <div>
-       <code-editor code=${`{ @jsonaschema("schema") }`} lang="jsona" path=${"file:///editor.jsona"} />
+       <code-editor code=${`{ @jsonaschema("schema") }`} lang="jsona" path=${"file:///editor.jsona"}></code-editor>
       </div>
     `;
   }
