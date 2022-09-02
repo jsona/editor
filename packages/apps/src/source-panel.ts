@@ -1,4 +1,4 @@
-import { customElement, state } from 'lit/decorators.js';
+import { customElement, property, state } from 'lit/decorators.js';
 import { until } from 'lit/directives/until.js';
 import { html, LitElement } from 'lit';
 import './code-editor';
@@ -10,6 +10,8 @@ export class SourcePanel extends LitElement {
   static styles = [
     bsStyle,
   ]
+
+  @property() public uri = "file:///source.jsona"
 
   @state()
   private data: Promise<string> = fetchData();
@@ -28,8 +30,7 @@ export class SourcePanel extends LitElement {
             <code-editor 
               height="90vh"
               code=${code} 
-              lang="jsona" 
-              path=${"file:///source.jsona"}
+              uri=${this.uri}
               .options=${{
                 glyphMargin: true,
                 automaticLayout: true,

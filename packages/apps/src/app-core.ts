@@ -21,14 +21,13 @@ export class AppCore extends LitElement {
       <div>
         <header-bar></header-bar>
         <div class="d-flex">
-          <source-panel class="panel"></source-panel>
+          <source-panel class="panel" uri=${"file:///source.schema.jsona"}></source-panel>
           <div class="panel">
             <tab-bar class="flex-grow-1" .names=${['target']}></tab-bar>
             <code-editor 
               height="90vh"
               code=${``}
-              lang="plaintext"
-              path=${"file:///target.txt"}
+              uri=${"file:///target.txt"}
               .options=${{
                 lineNumbers: 'off',
                 readOnly: true,
