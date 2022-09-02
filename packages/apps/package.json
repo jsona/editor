@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "bootswatch": "^5.2.0",
     "lit": "^2.3.1",
     "monaco-editor": "^0.34.0",
     "monaco-jsona": "^0.1.0"

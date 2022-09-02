@@ -3,9 +3,9 @@ import { customElement, property } from 'lit/decorators.js';
 import { ref, createRef } from 'lit/directives/ref.js';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import 'monaco-editor/esm/vs/editor/editor.all.js';
-import styles from "monaco-editor/min/vs/editor/editor.main.css";
-import { register, startLsp, currentDocUris, LANG_ID } from "monaco-jsona";
-import jsonaWorker from "monaco-jsona/dist/jsona.worker.js?worker";
+import styles from 'monaco-editor/min/vs/editor/editor.main.css';
+import { register, startLsp, currentDocUris, LANG_ID } from 'monaco-jsona';
+import jsonaWorker from 'monaco-jsona/dist/jsona.worker.js?worker';
 
 @customElement('code-editor')
 export class CodeEditor extends LitElement {
@@ -15,30 +15,26 @@ export class CodeEditor extends LitElement {
   @property() path: string;
   @property() code: string;
   @property() lang: string;
-
-  static styles = css`
-    :host {
-      --editor-width: 100%;
-      --editor-height: 100vh;
-    }
-    main {
-      width: var(--editor-width);
-      height: var(--editor-height);
-    }
-  `;
+  @property() width: string = "100%";
+  @property() height: string = "100%";
+  @property() options = {};
 
   protected render() {
     return html`
       <style>
         ${styles}
+        .editor {
+          width: ${this.width};
+          height: ${this.height};
+        }
       </style>
-      <main ${ref(this.container)}></main>
+      <main class="editor" ${ref(this.container)}></main>
     `;
   }
 
   public connectedCallback() {
     super.connectedCallback();
-    if (this.lang == LANG_ID) {
+    if (this.lang === LANG_ID) {
       let worker = new jsonaWorker();
       register(monaco);
       startLsp({
@@ -58,16 +54,21 @@ export class CodeEditor extends LitElement {
     const uri = monaco.Uri.parse(this.path);
     this.editor = monaco.editor.create(this.container.value!, {
       model: monaco.editor.getModel(uri) || monaco.editor.createModel(this.code, this.lang, uri),
-      glyphMargin: true,
-      lightbulb: {
-        enabled: true
-      }
-    })
+      ...this.options,
+    });
+    if (this.lang === LANG_ID) {
+      this.editor.addCommand(monaco.KeyCode.Alt | monaco.KeyCode.Shift | monaco.KeyCode.KeyF, () => {
+        this.editor.trigger('editor', 'editor.action.formatDocument', null);
+      });
+    }
+    this.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
+      this.dispatchEvent(new CustomEvent('execute', { bubbles: true, composed: true }));
+    });
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "code-editor": CodeEditor;
+    'code-editor': CodeEditor;
   }
 }
