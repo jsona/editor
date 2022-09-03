@@ -48,7 +48,6 @@ export function startLsp(options: StartLspOptions) {
   if (languageClient) {
     return languageClient;
   }
-  console.log("start jsona lsp");
   StandaloneServices.initialize({
     ...getNotificationServiceOverride(),
     ...getDialogsServiceOverride(),

@@ -4,9 +4,8 @@ import {
   Route,
 } from 'react-router-dom';
 import { Suspense } from 'react';
-import Spinner from 'react-bootstrap/Spinner';
-import { css } from '@emotion/react';
 import Layout from './components/Layout';
+import Loading from './components/Loading';
 import { ROUTES } from './constants';
 
 function App() {
@@ -19,14 +18,7 @@ function App() {
               const Page = item.page();
               return (
                 <Route key={item.path} path={item.path} element={
-                  <Suspense fallback={
-                    <div css={css`
-                      text-align: center;
-                      padding-top: 30vh;
-                    `}>
-                      <Spinner animation="border" />
-                    </div>
-                  }>
+                  <Suspense fallback={<Loading />}>
                     <Page />
                   </Suspense>
                 } />

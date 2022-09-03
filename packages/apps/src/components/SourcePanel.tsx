@@ -6,7 +6,7 @@ import Tabs from 'react-bootstrap/Tabs';
 import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import CodeEditor from './CodeEditor';
-import { ROUTES } from '../constants';
+import { ROUTES, EDITOR_HEIGHT } from '../constants';
 
 interface SourcePanelProps {
   onRunSource: (source: string) => void,
@@ -21,13 +21,14 @@ function SourcePanel({ onRunSource }: SourcePanelProps) {
   useEffect(() => {
     if (!sourceUrl) {
       setState({data: '', loading: false});
+      return;
     }
     fetch(sourceUrl).then(res => res.text()).then(data => {
       setState({data, loading: false});
       setSource(data);
+      onRunSource(data);
     })
   }, [sourceUrl]);
-  const file = `source${routeItem.sourceSuffix}`;
   return (
     <div>
       <div css={
@@ -36,18 +37,18 @@ function SourcePanel({ onRunSource }: SourcePanelProps) {
         `
         }>
         <ButtonGroup>
-          <Button variant="outline-primary" onClick={() => onRunSource(source)}>run</Button>
+          <Button variant="outline-primary" onClick={() => onRunSource(source)}>convert</Button>
         </ButtonGroup>
       </div>
       <Tabs
         defaultActiveKey="source"
         className="mb-3"
       >
-        <Tab eventKey="source" title={file}>
+        <Tab eventKey="source" title={routeItem.sourceFile}>
           {!state.loading &&
             <CodeEditor
-              code={state.data}
-              uri={`file:///${file}`}
+              value={state.data}
+              uri={`file:///${routeItem.sourceFile}`}
               options={{
                 glyphMargin: true,
                 automaticLayout: true,
@@ -55,7 +56,7 @@ function SourcePanel({ onRunSource }: SourcePanelProps) {
                   enabled: true
                 },
               }}
-              height="90vh"
+              height={EDITOR_HEIGHT}
               onChange={(source) => {
                 setSource(source);
               }}
@@ -69,26 +70,3 @@ function SourcePanel({ onRunSource }: SourcePanelProps) {
 }
 
 export default SourcePanel;
-      // <div className="d-flex">
-      //   <EditorTabs className="flex-grow-1" tabs={["source"]} />
-      //   <ButtonGroup className="pe-3">
-      //     <Button variant="outline-primary" onClick={() => onSource(source)}>run</Button>
-      //   </ButtonGroup>
-      // </div>
-      // {!state.loading &&
-      // <CodeEditor
-      //   code={state.data}
-      //   uri={`file:///source${routeItem.sourceSuffix}`}
-      //   options={{
-      //     glyphMargin: true,
-      //     automaticLayout: true,
-      //     lightbulb: {
-      //       enabled: true
-      //     },
-      //   }}
-      //   height="90vh"
-      //   onChange={(source) => {
-      //     setSource(source);
-      //   }}
-      //   onExecute={() => onSource(source)}
-      // />
