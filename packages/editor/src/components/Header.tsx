@@ -1,7 +1,7 @@
 import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
-import classNames from 'classNames';
+import classNames from 'classnames';
 import { Link, useLocation } from "react-router-dom";
 import { ROUTES, TITLE } from '../constants';
 

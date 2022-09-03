@@ -7,6 +7,6 @@
   "private": true,
   "workspaces": [
     "packages/monaco-jsona",
-    "packages/apps"
+    "packages/editor"
   ]
 }
