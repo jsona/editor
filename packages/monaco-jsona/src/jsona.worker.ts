@@ -3,7 +3,7 @@ import {
   BrowserMessageWriter,
 } from "vscode-languageserver-protocol/browser";
 
-import { JsonaLsp, RpcMessage } from "@jsona/lsp";
+import JsonaLsp, { RpcMessage } from "@jsona/lsp";
 
 let debug = true;
 const worker: Worker = self as any;
@@ -49,7 +49,7 @@ let com = {
 
 reader.listen(async (message: RpcMessage) => {
   if (!jsona) {
-    jsona = await JsonaLsp.init(
+    jsona = await JsonaLsp.getInstance(
       {
         envVar: (name) => {
           if (name === "RUST_LOG") {

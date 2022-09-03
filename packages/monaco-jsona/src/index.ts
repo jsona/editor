@@ -9,17 +9,6 @@ export { MonacoLanguageClient };
 
 export { LANG_ID };
 
-export function register(monaco: typeof Monaco) {
-  monaco.languages.register(extensionPoint);
-  monaco.languages.onLanguage(LANG_ID, async () => {
-    monaco.languages.setMonarchTokensProvider(LANG_ID, monarchLanguage);
-    monaco.languages.setLanguageConfiguration(LANG_ID, languageConfiguration);
-  });
-}
-
-export const currentDocUris: Set<string> = new Set();
-
-
 export const DEFAULT_CONFIGURATION = {
   "schema": {
     "enabled": true,
@@ -35,38 +24,40 @@ export const DEFAULT_CONFIGURATION = {
     "formatKey": false
   }
 }
-
-export interface StartLspOptions {
+export interface Options {
+  monaco: typeof Monaco,
   worker: Worker,
   debug: boolean,
   configuration?: typeof DEFAULT_CONFIGURATION,
 }
 
-let languageClient: MonacoLanguageClient;
+let languageClient: MonacoLanguageClient = null;
 
-export function startLsp(options: StartLspOptions) {
-  if (languageClient) {
-    return languageClient;
+export function register(options: Options) {
+  options.monaco.languages.register(extensionPoint);
+  options.monaco.languages.onLanguage(LANG_ID, async () => {
+    options.monaco.languages.setMonarchTokensProvider(LANG_ID, monarchLanguage);
+    options.monaco.languages.setLanguageConfiguration(LANG_ID, languageConfiguration);
+  });
+  if (!languageClient) {
+    StandaloneServices.initialize({
+      ...getNotificationServiceOverride(),
+      ...getDialogsServiceOverride(),
+    });
+    MonacoServices.install();
+    const reader = new BrowserMessageReader(options.worker);
+    const writer = new BrowserMessageWriter(options.worker);
+    languageClient = createLanguageClient({ reader, writer });
+    languageClient.sendNotification("internal/setup", { debug: options.debug });
+    languageClient.onRequest("workspace/configuration", async (parmas) => {
+      return Array.from(Array(parmas.length)).map(() => options.configuration ?? DEFAULT_CONFIGURATION);
+    });
+    languageClient.start();
+    reader.onClose(() => languageClient.stop());
   }
-  StandaloneServices.initialize({
-    ...getNotificationServiceOverride(),
-    ...getDialogsServiceOverride(),
-  });
-  MonacoServices.install();
-  const reader = new BrowserMessageReader(options.worker);
-  const writer = new BrowserMessageWriter(options.worker);
-  languageClient = createLanguageClient({ reader, writer });
-  languageClient.sendNotification("internal/setup", { debug: options.debug });
-  languageClient.onNotification("jsona/initializeWorkspace", async () => {
-    for (const documentUri of currentDocUris) {
-      await languageClient.sendRequest("jsona/associatedSchema", { documentUri });
-    }
-  });
-  languageClient.onRequest("workspace/configuration", async (parmas) => {
-    return Array.from(Array(parmas.length)).map(() => options.configuration ?? DEFAULT_CONFIGURATION);
-  });
-  languageClient.start();
-  reader.onClose(() => languageClient.stop());
+}
+
+export function getLanguageClient(): MonacoLanguageClient | null {
   return languageClient;
 }
 
