@@ -10,7 +10,7 @@ import { ROUTES } from './constants';
 
 function App() {
   return (
-  <Router>
+  <Router basename='/editor'>
     <Routes>
         <Route path="/" element={<Layout />}>
           {
