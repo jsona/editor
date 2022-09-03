@@ -3,7 +3,7 @@ import 'monaco-editor/esm/vs/editor/editor.all.js';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import 'monaco-editor/esm/vs/language/json/monaco.contribution';
 import 'monaco-editor/esm/vs/basic-languages/yaml/yaml.contribution';
-import { register, startLsp, currentDocUris } from 'monaco-jsona';
+import { register, getLanguageClient } from 'monaco-jsona';
 import jsonaWorker from 'monaco-jsona/dist/jsona.worker.js?worker';
 import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
 import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker';
@@ -31,20 +31,21 @@ interface CodeEditorProps {
 class CodeEditor extends React.Component<CodeEditorProps, any> {
   private container = createRef<HTMLDivElement>(); // like this
   private editor?: monaco.editor.IStandaloneCodeEditor;
-  private modelContentChangeSubscription?: monaco.IDisposable;
+  private disposables: monaco.IDisposable[] = [];
 
   componentDidMount() {
     if (this.isJsona()) {
-      const worker = new jsonaWorker();
-      register(monaco);
-      startLsp({
-        worker,
+      register({
+        monaco: monaco,
+        worker: new jsonaWorker(),
         debug: import.meta.env.DEV,
+      });
+      getLanguageClient()?.onNotification("jsona/initializeWorkspace", async () => {
+        this.associatedSchema();
       });
     } else if (this.props.uri.endsWith('.json')) {
       monaco.languages.register({ id: 'json'})
     }
-    currentDocUris.add(this.props.uri);
     const uri = monaco.Uri.parse(this.props.uri);
     const editor = monaco.editor.create(this.container.current!, {
       model: monaco.editor.getModel(uri) || monaco.editor.createModel(this.props.value, null, uri),
@@ -58,9 +59,9 @@ class CodeEditor extends React.Component<CodeEditorProps, any> {
     editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
       if (this.props.onExecute) this.props.onExecute();
     });
-    this.modelContentChangeSubscription = editor.onDidChangeModelContent((event) => {
+    this.disposables.push(editor.onDidChangeModelContent(() => {
       if (this.props.onChange) this.props.onChange(editor.getValue());
-    });
+    }));
     this.editor = editor;
   }
 
@@ -81,11 +82,10 @@ class CodeEditor extends React.Component<CodeEditorProps, any> {
   }
 
   componentWillUnmount() {
-    if (this.isJsona()) currentDocUris.delete(this.props.uri);
     const model = this.editor.getModel();
     this.editor.dispose();
     if (model) model.dispose();
-    if (this.modelContentChangeSubscription) this.modelContentChangeSubscription.dispose();
+    this.disposables.map(disposable =>disposable.dispose());
   }
 
   render() {
@@ -93,6 +93,12 @@ class CodeEditor extends React.Component<CodeEditorProps, any> {
     return (
       <div style={{height, width}} ref={this.container}></div>
     )
+  }
+
+  private associatedSchema() {
+    if (this.isJsona()) {
+      getLanguageClient()?.sendRequest("jsona/associatedSchema", { documentUri: this.props.uri });
+    }
   }
 
   private isJsona() {

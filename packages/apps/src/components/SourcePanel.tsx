@@ -50,6 +50,7 @@ function SourcePanel({ onRunSource }: SourcePanelProps) {
               value={state.data}
               uri={`file:///${routeItem.sourceFile}`}
               options={{
+                tabSize: 2,
                 glyphMargin: true,
                 automaticLayout: true,
                 lightbulb: {

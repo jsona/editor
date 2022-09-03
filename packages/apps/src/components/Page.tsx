@@ -22,6 +22,7 @@ export function renderEditor(target: string, tabConfig: TabConfig) {
     value={target ? JSON.stringify(target, null, 2) : ''}
     uri={`file:///${tabConfig.file}`}
     options={{
+      tabSize: 2,
       automaticLayout: true,
       lineNumbers: 'off',
     }}

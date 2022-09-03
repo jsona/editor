@@ -399,12 +399,12 @@
   resolved "https://registry.yarnpkg.com/@jsona/core/-/core-0.1.4.tgz#8367b033802403dfaf4d7dbee67413075c379c60"
   integrity sha512-YLx37ru3lqmc8+a6W5xT77lci5c1cXXHm/5zGr1hHh2kGuCh0x0q75nWqeALoOJzn4PsaN728KfoCZdKMbsyKQ==
 
-"@jsona/lsp@^0.1.8":
-  version "0.1.8"
-  resolved "https://registry.yarnpkg.com/@jsona/lsp/-/lsp-0.1.8.tgz#0db9c9b90b014feb97ce2ac93cdfc1be27e704d5"
-  integrity sha512-ZuXCnwvxdP6GJprS7t5s18HDTrLrj+gLX6sJuu2U2GxUs/t8v3tDImmqais90SCEDPqaNHpr+OsTSHHA/hegPQ==
+"@jsona/lsp@^0.1.9":
+  version "0.1.9"
+  resolved "https://registry.yarnpkg.com/@jsona/lsp/-/lsp-0.1.9.tgz#62e40ab59b11b29e7ec05930ec839822816d51f7"
+  integrity sha512-s2EZXWX1DPVqvpJFw9x7nc7KR1+dlrgg4JH9h+gziCmYetUz1R5djmO3lcsrsxKQz/8c3vERB/bzTo8zdXpgvg==
   dependencies:
-    "@jsona/util-types" "^0.1.4"
+    "@jsona/util-types" "^0.1.5"
 
 "@jsona/openapi@^0.1.0":
   version "0.1.0"
@@ -420,10 +420,10 @@
   dependencies:
     json-schema-typed "^8.0.1"
 
-"@jsona/util-types@^0.1.4":
-  version "0.1.4"
-  resolved "https://registry.yarnpkg.com/@jsona/util-types/-/util-types-0.1.4.tgz#99d39337efbc7135708664e2162aa4079fc73ba4"
-  integrity sha512-O0+F/9rL9a2sYsqkwed0w3Zd3b+/mXifP+Rpv338uEIF3rdnlUn9YxWhfpdvYMIcgrs+JMXwMn9Hd8KCQvWVWA==
+"@jsona/util-types@^0.1.5":
+  version "0.1.5"
+  resolved "https://registry.yarnpkg.com/@jsona/util-types/-/util-types-0.1.5.tgz#e77539a43514e06fa905a14ff25ddf2d00720137"
+  integrity sha512-6jdFKad1kb66zIKQv3Z3uF4OC7C75coZvVSHzjF60NiQ8iib6PAGXPkpipGrh3/PcDXszKZv8UwHbukBnnw1og==
 
 "@popperjs/core@^2.11.5":
   version "2.11.6"
