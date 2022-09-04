@@ -3,7 +3,7 @@ import 'monaco-editor/esm/vs/editor/editor.all.js';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import 'monaco-editor/esm/vs/language/json/monaco.contribution';
 import 'monaco-editor/esm/vs/basic-languages/yaml/yaml.contribution';
-import { register, getLanguageClient } from 'monaco-jsona';
+import { register } from 'monaco-jsona';
 import jsonaWorker from 'monaco-jsona/dist/jsona.worker.js?worker';
 import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
 import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker';
@@ -29,7 +29,7 @@ interface CodeEditorProps {
 }
 
 class CodeEditor extends React.Component<CodeEditorProps, any> {
-  private container = createRef<HTMLDivElement>(); // like this
+  private container = createRef<HTMLDivElement>();
   private editor?: monaco.editor.IStandaloneCodeEditor;
   private disposables: monaco.IDisposable[] = [];
 
@@ -40,11 +40,6 @@ class CodeEditor extends React.Component<CodeEditorProps, any> {
         worker: new jsonaWorker(),
         debug: import.meta.env.DEV,
       });
-      getLanguageClient()?.onNotification("jsona/initializeWorkspace", async () => {
-        this.associatedSchema();
-      });
-    } else if (this.props.uri.endsWith('.json')) {
-      monaco.languages.register({ id: 'json'})
     }
     const uri = monaco.Uri.parse(this.props.uri);
     const editor = monaco.editor.create(this.container.current!, {
@@ -93,12 +88,6 @@ class CodeEditor extends React.Component<CodeEditorProps, any> {
     return (
       <div style={{height, width}} ref={this.container}></div>
     )
-  }
-
-  private associatedSchema() {
-    if (this.isJsona()) {
-      getLanguageClient()?.sendRequest("jsona/associatedSchema", { documentUri: this.props.uri });
-    }
   }
 
   private isJsona() {

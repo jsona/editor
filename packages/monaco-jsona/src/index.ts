@@ -2,12 +2,12 @@ import { MonacoLanguageClient, CloseAction, ErrorAction, MonacoServices, Message
 import { BrowserMessageReader, BrowserMessageWriter } from 'vscode-languageserver-protocol/browser';
 import { StandaloneServices } from 'vscode/services';
 import type Monaco from 'monaco-editor';
-import { LANG_ID, extensionPoint, languageConfiguration, monarchLanguage } from "./jsona.language";
+import { languageId, extensionPoint, languageConfiguration, monarchLanguage } from "./jsona.language";
 import getNotificationServiceOverride from 'vscode/service-override/notifications'
 import getDialogsServiceOverride from 'vscode/service-override/dialogs'
 export { MonacoLanguageClient };
 
-export { LANG_ID };
+export { languageId };
 
 export const DEFAULT_CONFIGURATION = {
   "schema": {
@@ -27,17 +27,17 @@ export const DEFAULT_CONFIGURATION = {
 export interface Options {
   monaco: typeof Monaco,
   worker: Worker,
-  debug: boolean,
   configuration?: typeof DEFAULT_CONFIGURATION,
 }
 
 let languageClient: MonacoLanguageClient = null;
 
 export function register(options: Options) {
-  options.monaco.languages.register(extensionPoint);
-  options.monaco.languages.onLanguage(LANG_ID, async () => {
-    options.monaco.languages.setMonarchTokensProvider(LANG_ID, monarchLanguage);
-    options.monaco.languages.setLanguageConfiguration(LANG_ID, languageConfiguration);
+  const { monaco, worker, configuration } = options;
+  monaco.languages.register(extensionPoint);
+  monaco.languages.onLanguage(languageId, () => {
+    monaco.languages.setMonarchTokensProvider(languageId, monarchLanguage);
+    monaco.languages.setLanguageConfiguration(languageId, languageConfiguration);
   });
   if (!languageClient) {
     StandaloneServices.initialize({
@@ -45,12 +45,11 @@ export function register(options: Options) {
       ...getDialogsServiceOverride(),
     });
     MonacoServices.install();
-    const reader = new BrowserMessageReader(options.worker);
-    const writer = new BrowserMessageWriter(options.worker);
+    const reader = new BrowserMessageReader(worker);
+    const writer = new BrowserMessageWriter(worker);
     languageClient = createLanguageClient({ reader, writer });
-    languageClient.sendNotification("internal/setup", { debug: options.debug });
     languageClient.onRequest("workspace/configuration", async (parmas) => {
-      return Array.from(Array(parmas.length)).map(() => options.configuration ?? DEFAULT_CONFIGURATION);
+      return Array.from(Array(parmas.length)).map(() => configuration ?? DEFAULT_CONFIGURATION);
     });
     languageClient.start();
     reader.onClose(() => languageClient.stop());
@@ -66,7 +65,7 @@ function createLanguageClient(transports: MessageTransports): MonacoLanguageClie
     name: 'JSONA Language Server',
     clientOptions: {
       // use a language id as a document selector
-      documentSelector: [{ language: 'jsona' }],
+      documentSelector: [{ language: languageId }],
       // disable the default error handler
       errorHandler: {
         error: () => ({ action: ErrorAction.Continue }),

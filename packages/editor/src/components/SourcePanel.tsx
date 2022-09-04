@@ -48,7 +48,7 @@ function SourcePanel({ onRunSource }: SourcePanelProps) {
           {!state.loading &&
             <CodeEditor
               value={state.data}
-              uri={`file:///${routeItem.sourceFile}`}
+              uri={`inmemory:///${routeItem.sourceFile}`}
               options={{
                 tabSize: 2,
                 glyphMargin: true,

@@ -20,7 +20,7 @@ export function makeConvertFn(modFactory: any, fn: string) {
 export function renderEditor(target: string, tabConfig: TabConfig) {
   return <CodeEditor
     value={target ? JSON.stringify(target, null, 2) : ''}
-    uri={`file:///${tabConfig.file}`}
+    uri={`inmemory:///${tabConfig.file}`}
     options={{
       tabSize: 2,
       automaticLayout: true,

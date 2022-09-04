@@ -4,7 +4,7 @@ import { viteExternalsPlugin } from 'vite-plugin-externals'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: '/editor',
+  base: '/editor/',
   plugins: [
     viteExternalsPlugin({
       path: 'path',
