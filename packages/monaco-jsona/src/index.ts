@@ -1,15 +1,14 @@
 import { MonacoLanguageClient, CloseAction, ErrorAction, MonacoServices, MessageTransports } from 'monaco-languageclient';
 import { BrowserMessageReader, BrowserMessageWriter } from 'vscode-languageserver-protocol/browser';
 import { StandaloneServices } from 'vscode/services';
-import type Monaco from 'monaco-editor';
+import { languages, Emitter } from 'monaco-editor/esm/vs/editor/editor.api.js';
 import { languageId, extensionPoint, languageConfiguration, monarchLanguage } from "./jsona.language";
-import getNotificationServiceOverride from 'vscode/service-override/notifications'
 import getDialogsServiceOverride from 'vscode/service-override/dialogs'
-export { MonacoLanguageClient };
+import getNotificationServiceOverride from 'vscode/service-override/notifications'
 
 export { languageId };
 
-export const DEFAULT_CONFIGURATION = {
+const DEFAULT_OPTIONS = {
   "schema": {
     "enabled": true,
     "associations": {
@@ -24,40 +23,66 @@ export const DEFAULT_CONFIGURATION = {
     "formatKey": false
   }
 }
-export interface Options {
-  monaco: typeof Monaco,
-  worker: Worker,
-  configuration?: typeof DEFAULT_CONFIGURATION,
+type RecursivePartial<T> = {
+  [P in keyof T]?:
+  T[P] extends (infer U)[] ? RecursivePartial<U>[] :
+  T[P] extends object ? RecursivePartial<T[P]> :
+  T[P];
+};
+
+type LanguageServiceOptions = RecursivePartial<typeof DEFAULT_OPTIONS>;
+
+
+function createLanguageServiceDefaults(
+  initialOptions: LanguageServiceOptions,
+) {
+  const onDidChange = new Emitter();
+  let currentOptions = initialOptions;
+  const languageServiceDefaults = {
+    get onDidChange() {
+      return onDidChange.event;
+    },
+
+    get options() {
+      return currentOptions;
+    },
+
+    setOptions(options: LanguageServiceOptions) {
+      currentOptions = merge(currentOptions, options);
+      console.log(options);
+      onDidChange.fire(languageServiceDefaults);
+    },
+  };
+
+  return languageServiceDefaults;
 }
 
-let languageClient: MonacoLanguageClient = null;
+export const jsonaDefaults = createLanguageServiceDefaults(DEFAULT_OPTIONS);
 
-export function register(options: Options) {
-  const { monaco, worker, configuration } = options;
-  monaco.languages.register(extensionPoint);
-  monaco.languages.onLanguage(languageId, () => {
-    monaco.languages.setMonarchTokensProvider(languageId, monarchLanguage);
-    monaco.languages.setLanguageConfiguration(languageId, languageConfiguration);
+console.log(`register ${languageId}`);
+languages.register(extensionPoint);
+languages.onLanguage(languageId, setupMode);
+StandaloneServices.initialize({
+  ...getDialogsServiceOverride(),
+  ...getNotificationServiceOverride(),
+});
+MonacoServices.install();
+
+function setupMode() {
+  languages.setMonarchTokensProvider(languageId, monarchLanguage);
+  languages.setLanguageConfiguration(languageId, languageConfiguration);
+  const worker = getWorker(globalThis);
+  const reader = new BrowserMessageReader(worker);
+  const writer = new BrowserMessageWriter(worker);
+  const languageClient = createLanguageClient({ reader, writer });
+  jsonaDefaults.onDidChange(() => {
+    languageClient.sendNotification("workspace/didChangeConfiguration", { settings: null });
+  })
+  languageClient.onRequest("workspace/configuration", async (parmas) => {
+    return Array.from(Array(parmas.length)).map(() => jsonaDefaults.options);
   });
-  if (!languageClient) {
-    StandaloneServices.initialize({
-      ...getNotificationServiceOverride(),
-      ...getDialogsServiceOverride(),
-    });
-    MonacoServices.install();
-    const reader = new BrowserMessageReader(worker);
-    const writer = new BrowserMessageWriter(worker);
-    languageClient = createLanguageClient({ reader, writer });
-    languageClient.onRequest("workspace/configuration", async (parmas) => {
-      return Array.from(Array(parmas.length)).map(() => configuration ?? DEFAULT_CONFIGURATION);
-    });
-    languageClient.start();
-    reader.onClose(() => languageClient.stop());
-  }
-}
-
-export function getLanguageClient(): MonacoLanguageClient | null {
-  return languageClient;
+  languageClient.start();
+  reader.onClose(() => languageClient.stop());
 }
 
 function createLanguageClient(transports: MessageTransports): MonacoLanguageClient {
@@ -79,4 +104,27 @@ function createLanguageClient(transports: MessageTransports): MonacoLanguageClie
       }
     }
   });
+}
+
+function getWorker(globalObj: any): Worker {
+  // Option for hosts to overwrite the worker script (used in the standalone editor)
+  if (globalObj.MonacoEnvironment) {
+    if (typeof globalObj.MonacoEnvironment.getWorker === 'function') {
+      return globalObj.MonacoEnvironment.getWorker(null, languageId);
+    }
+    if (typeof globalObj.MonacoEnvironment.getWorkerUrl === 'function') {
+      const workerUrl = globalObj.MonacoEnvironment.getWorkerUrl(null, languageId);
+      return new Worker(workerUrl);
+    }
+  }
+  throw new Error(`You must define a function MonacoEnvironment.getWorkerUrl or MonacoEnvironment.getWorker`);
+}
+
+function merge(target: any, source: any) {
+  for (const key of Object.keys(source)) {
+    if (source[key] instanceof Object) Object.assign(source[key], merge(target[key], source[key]))
+  }
+
+  Object.assign(target || {}, source)
+  return target
 }

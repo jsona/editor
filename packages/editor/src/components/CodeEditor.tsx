@@ -3,7 +3,7 @@ import 'monaco-editor/esm/vs/editor/editor.all.js';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import 'monaco-editor/esm/vs/language/json/monaco.contribution';
 import 'monaco-editor/esm/vs/basic-languages/yaml/yaml.contribution';
-import { register } from 'monaco-jsona';
+import 'monaco-jsona';
 import jsonaWorker from 'monaco-jsona/dist/jsona.worker.js?worker';
 import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
 import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker';
@@ -13,7 +13,9 @@ self.MonacoEnvironment = {
 	getWorker(_: any, label: string) {
 		if (label === 'json') {
 			return new jsonWorker();
-		}
+		} else if (label === 'jsona') {
+      return new jsonaWorker();
+    }
 		return new editorWorker();
 	}
 };
@@ -34,23 +36,14 @@ class CodeEditor extends React.Component<CodeEditorProps, any> {
   private disposables: monaco.IDisposable[] = [];
 
   componentDidMount() {
-    if (this.isJsona()) {
-      register({
-        monaco: monaco,
-        worker: new jsonaWorker(),
-        debug: import.meta.env.DEV,
-      });
-    }
     const uri = monaco.Uri.parse(this.props.uri);
     const editor = monaco.editor.create(this.container.current!, {
       model: monaco.editor.getModel(uri) || monaco.editor.createModel(this.props.value, null, uri),
       ...this.props.options,
     });
-    if (this.isJsona()) {
-      editor.addCommand(monaco.KeyCode.Alt | monaco.KeyCode.Shift | monaco.KeyCode.KeyF, () => {
-        editor.trigger('editor', 'editor.action.formatDocument', null);
-      });
-    }
+    editor.addCommand(monaco.KeyCode.Alt | monaco.KeyCode.Shift | monaco.KeyCode.KeyF, () => {
+      editor.trigger('editor', 'editor.action.formatDocument', null);
+    });
     editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
       if (this.props.onExecute) this.props.onExecute();
     });
@@ -88,10 +81,6 @@ class CodeEditor extends React.Component<CodeEditorProps, any> {
     return (
       <div style={{height, width}} ref={this.container}></div>
     )
-  }
-
-  private isJsona() {
-    return this.props.uri.endsWith('jsona');
   }
 }
 
