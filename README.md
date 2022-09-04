@@ -1,1 +1,1 @@
-# jsona editor
+# JSONA Editor

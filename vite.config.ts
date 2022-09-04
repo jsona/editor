@@ -5,6 +5,11 @@ import { viteExternalsPlugin } from 'vite-plugin-externals'
 // https://vitejs.dev/config/
 export default defineConfig({
   base: '/editor/',
+  server: {
+    fs: {
+      allow: [".."],
+    }
+  },
   plugins: [
     viteExternalsPlugin({
       path: 'path',

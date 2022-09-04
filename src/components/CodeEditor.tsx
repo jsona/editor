@@ -3,10 +3,10 @@ import 'monaco-editor/esm/vs/editor/editor.all.js';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import 'monaco-editor/esm/vs/language/json/monaco.contribution';
 import 'monaco-editor/esm/vs/basic-languages/yaml/yaml.contribution';
-import 'monaco-jsona';
-import jsonaWorker from 'monaco-jsona/dist/jsona.worker.js?worker';
+import jsonaWorker from 'monaco-jsona/jsona.worker.js?worker';
 import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
 import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker';
+import 'monaco-jsona';
 
 // @ts-ignore
 self.MonacoEnvironment = {

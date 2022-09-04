@@ -3,8 +3,8 @@ import { useLocation } from 'react-router-dom';
 import { useState, useEffect, ReactElement } from 'react';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
-import CodeEditor from '../components/CodeEditor';
-import SourcePanel from '../components/SourcePanel';
+import CodeEditor from './CodeEditor';
+import SourcePanel from './SourcePanel';
 import { EDITOR_HEIGHT } from '../constants';
 
 export function makeConvertFn(modFactory: any, fn: string) {
