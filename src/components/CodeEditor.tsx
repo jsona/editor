@@ -1,23 +1,29 @@
 import React, { createRef } from 'react';
 import 'monaco-editor/esm/vs/editor/editor.all.js';
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
+import * as monacoEditor from 'monaco-editor/esm/vs/editor/editor.api';
 import 'monaco-editor/esm/vs/language/json/monaco.contribution';
 import 'monaco-editor/esm/vs/basic-languages/yaml/yaml.contribution';
-import jsonaWorker from 'monaco-jsona/jsona.worker.js?worker';
-import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
-import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker';
+import JsonaWorker from 'monaco-jsona/jsona.worker.js?worker';
+import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
+import JsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker';
 import 'monaco-jsona';
+import { ErrorObject } from '../types';
+
+
+export const MARKER_OWNER = "converter";
 
 // @ts-ignore
 self.MonacoEnvironment = {
-	getWorker(_: any, label: string) {
-		if (label === 'json') {
-			return new jsonWorker();
-		} else if (label === 'jsona') {
-      return new jsonaWorker();
+  getWorker(_: any, label: string) {
+    if (label === 'json') {
+      return new JsonWorker();
+    } else if (label === 'jsona') {
+      const jsonaWorker = new JsonaWorker();
+      // jsonaWorker.postMessage({ method: "lsp/debug" });
+      return jsonaWorker;
     }
-		return new editorWorker();
-	}
+    return new EditorWorker();
+  }
 };
 
 interface CodeEditorProps {
@@ -25,30 +31,31 @@ interface CodeEditorProps {
   value: string,
   width?: string,
   height?: string,
-  options?: monaco.editor.IStandaloneEditorConstructionOptions,
-  onExecute?: () => void,
+  options?: monacoEditor.editor.IStandaloneEditorConstructionOptions,
+  extraErrors?: ErrorObject[],
   onChange?: (value: string) => void,
+  editorDidMount?: (editor: monacoEditor.editor.IStandaloneCodeEditor, monaco: typeof monacoEditor) => void,
+  editorWillUnmount?: (editor: monacoEditor.editor.IStandaloneCodeEditor, monaco: typeof monacoEditor) => void,
 }
 
 class CodeEditor extends React.Component<CodeEditorProps, any> {
   private container = createRef<HTMLDivElement>();
-  private editor?: monaco.editor.IStandaloneCodeEditor;
-  private disposables: monaco.IDisposable[] = [];
+  private editor?: monacoEditor.editor.IStandaloneCodeEditor;
+  private disposables: monacoEditor.IDisposable[] = [];
 
   componentDidMount() {
-    const uri = monaco.Uri.parse(this.props.uri);
-    const editor = monaco.editor.create(this.container.current!, {
-      model: monaco.editor.getModel(uri) || monaco.editor.createModel(this.props.value, null, uri),
-      ...this.props.options,
+    const { uri, value, options, editorDidMount, onChange } = this.props;
+    const modelUri = monacoEditor.Uri.parse(uri);
+    const editor = monacoEditor.editor.create(this.container.current!, {
+      model: monacoEditor.editor.getModel(modelUri) || monacoEditor.editor.createModel(value, null, modelUri),
+      ...options,
     });
-    editor.addCommand(monaco.KeyCode.Alt | monaco.KeyCode.Shift | monaco.KeyCode.KeyF, () => {
+    editor.addCommand(monacoEditor.KeyCode.Alt | monacoEditor.KeyCode.Shift | monacoEditor.KeyCode.KeyF, () => {
       editor.trigger('editor', 'editor.action.formatDocument', null);
     });
-    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
-      if (this.props.onExecute) this.props.onExecute();
-    });
+    if (editorDidMount) editorDidMount(editor, monacoEditor);
     this.disposables.push(editor.onDidChangeModelContent(() => {
-      if (this.props.onChange) this.props.onChange(editor.getValue());
+      if (onChange) onChange(editor.getValue());
     }));
     this.editor = editor;
   }
@@ -57,29 +64,62 @@ class CodeEditor extends React.Component<CodeEditorProps, any> {
     if (prevProps.uri !== this.props.uri) {
       let oldModel = this.editor.getModel();
       this.editor.setModel(
-        monaco.editor.createModel(
+        monacoEditor.editor.createModel(
           this.props.value,
           null,
-          monaco.Uri.parse(this.props.uri),
+          monacoEditor.Uri.parse(this.props.uri),
         ),
       );
-      if(oldModel) oldModel.dispose();
+      if (oldModel) oldModel.dispose();
     } else if (prevProps.value !== this.props.value) {
       this.editor.setValue(this.props.value);
     }
   }
 
   componentWillUnmount() {
+    const { editorWillUnmount } = this.props;
+    if (editorWillUnmount) editorWillUnmount(this.editor, monacoEditor);
     const model = this.editor.getModel();
     this.editor.dispose();
     if (model) model.dispose();
-    this.disposables.map(disposable =>disposable.dispose());
+    this.disposables.map(disposable => disposable.dispose());
+  }
+
+  markExtraErrors() {
+    const { extraErrors } = this.props;
+    if (this.editor && Array.isArray(extraErrors)) {
+      const model = this.editor.getModel();
+      if (model) {
+        const markers = extraErrors.map(item => {
+          const loc = {
+            startLineNumber: 1,
+            startColumn: 1,
+            endLineNumber: model.getLineCount(),
+            endColumn: model.getLineMaxColumn(1),
+          };
+          if (item.range) {
+            const { start, end } = item.range;
+            loc.startLineNumber = start.line + 1;
+            loc.startColumn = start.column + 1;
+            loc.endLineNumber = end.line + 1;
+            loc.endColumn = end.column + 1;
+          }
+          return {
+            ...loc,
+            message: item.message,
+            severity: 8, // Error
+          }
+        });
+        monacoEditor.editor.setModelMarkers(this.editor.getModel(), MARKER_OWNER, markers);
+      }
+    }
   }
 
   render() {
     const { height, width } = this.props;
+    this.markExtraErrors()
     return (
-      <div style={{height, width}} ref={this.container}></div>
+      <div style={{ height, width }} ref={this.container}></div>
     )
   }
 }

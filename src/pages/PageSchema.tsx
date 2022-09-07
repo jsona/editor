@@ -1,12 +1,12 @@
 import Page, { makeConvertFn, renderEditor } from '../components/Page';
-import JsonaSchema from '@jsona/schema';
+import { parse } from '@jsona/schema';
 
 function PageSchema() {
   return <Page tabs={[
     {
       name: 'toSchema',
       file: 'toSchema.json',
-      convert: makeConvertFn(JsonaSchema, 'parse'),
+      convert: makeConvertFn(parse),
       render: renderEditor,
     }
   ]} />

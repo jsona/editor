@@ -7,11 +7,10 @@ import CodeEditor from './CodeEditor';
 import SourcePanel from './SourcePanel';
 import { EDITOR_HEIGHT } from '../constants';
 
-export function makeConvertFn(modFactory: any, fn: string) {
-  return async (source: string) => {
+export function makeConvertFn(parse: (source: string) => any) {
+  return (source: string) => {
     if (!source) return null;
-    const mod = await (modFactory as any).getInstance();
-    const out = mod[fn](source);
+    const out = parse(source)
     if (out["errors"]) throw out["errors"];
     return out.value;
   }
@@ -48,15 +47,19 @@ interface TabConfig {
 
 function Page({ tabs }: PageProps) {
   const [source, setSource] = useState('');
+  const [sourceErrors, setSourceErrors] = useState([]);
   const location = useLocation();
   const tabKey = new URLSearchParams(location.search).get('tab');
   const [tab, setTab] = useState((tabs.find(v => v.name == tabKey) || tabs[0])?.name);
   const [target, setTarget] = useState(null);
   useEffect(() => {
     const converter = tabs.find(v => v.name === tab);
-    converter.convert(source).then(data => {
-      setTarget(data);
-    });
+    try {
+      setTarget(converter.convert(source))
+      setSourceErrors([]);
+    } catch (errors) {
+      setSourceErrors(errors);
+    }
   }, [source, tab]);
   const handleSource = (source: string) => {
     setSource(source);
@@ -64,7 +67,7 @@ function Page({ tabs }: PageProps) {
   return (
     <div className="d-flex">
       <div css={panelStyle}>
-        <SourcePanel onRunSource={handleSource} />
+        <SourcePanel extraErrors={sourceErrors} onRunSource={handleSource} />
       </div>
       <div css={panelStyle}>
       <Tabs

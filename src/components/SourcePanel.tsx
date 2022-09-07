@@ -3,21 +3,34 @@ import { css } from '@emotion/react';
 import { useLocation } from 'react-router-dom';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
+import * as monacoEditor from 'monaco-editor/esm/vs/editor/editor.api';
 import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
-import CodeEditor from './CodeEditor';
+import CodeEditor, { MARKER_OWNER } from './CodeEditor';
 import { ROUTES, EDITOR_HEIGHT } from '../constants';
-
+import { ErrorObject } from "../types";
 interface SourcePanelProps {
   onRunSource: (source: string) => void,
+  extraErrors: ErrorObject[],
 }
 
-function SourcePanel({ onRunSource }: SourcePanelProps) {
+function SourcePanel({ onRunSource, extraErrors }: SourcePanelProps) {
   const [source, setSource] = useState('');
+  const [editor, setEditor] = useState<monacoEditor.editor.IStandaloneCodeEditor>(null);
   const [state, setState] = useState({ data: '', loading: true });
   const location = useLocation();
   const sourceUrl = new URLSearchParams(location.search).get('source');
   const routeItem = ROUTES.find(item => item.path === location.pathname) || ROUTES[0];
+  const handleConvert = () => {
+    if (editor) {
+      let markers = monacoEditor.editor.getModelMarkers({ resource: editor.getModel().uri });
+      if (markers.find(v => v.owner !== MARKER_OWNER)) {
+        // Toast show error
+      } else {
+        onRunSource(source);
+      }
+    }
+  }
   useEffect(() => {
     if (!sourceUrl) {
       setState({data: '', loading: false});
@@ -29,6 +42,7 @@ function SourcePanel({ onRunSource }: SourcePanelProps) {
       onRunSource(data);
     })
   }, [sourceUrl]);
+
   return (
     <div>
       <div css={
@@ -37,7 +51,7 @@ function SourcePanel({ onRunSource }: SourcePanelProps) {
         `
         }>
         <ButtonGroup>
-          <Button variant="outline-primary" onClick={() => onRunSource(source)}>convert</Button>
+          <Button variant="outline-primary" onClick={handleConvert}>convert</Button>
         </ButtonGroup>
       </div>
       <Tabs
@@ -57,11 +71,13 @@ function SourcePanel({ onRunSource }: SourcePanelProps) {
                   enabled: true
                 },
               }}
+              extraErrors={extraErrors}
+              editorDidMount={editor => setEditor(editor)}
+              editorWillUnmount={_ => setEditor(null)}
               height={EDITOR_HEIGHT}
               onChange={(source) => {
                 setSource(source);
               }}
-              onExecute={() => onRunSource(source)}
             />
           }
         </Tab>

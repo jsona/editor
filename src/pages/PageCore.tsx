@@ -1,18 +1,18 @@
 import Page, { makeConvertFn, renderEditor } from '../components/Page';
-import Jsona from '@jsona/core';
+import { parse, parseAst } from "@jsona/core";
 
 function PageCore() {
   return <Page tabs={[
     {
       name: 'toJson',
       file: 'toJson.json',
-      convert: makeConvertFn(Jsona, 'parse'),
+      convert: makeConvertFn(parse),
       render: renderEditor,
     },
     {
       name: 'toAst',
       file: 'toAst.json',
-      convert: makeConvertFn(Jsona, 'parseAst'),
+      convert: makeConvertFn(parseAst),
       render: renderEditor,
     }
   ]} />
