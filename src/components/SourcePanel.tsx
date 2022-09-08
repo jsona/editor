@@ -9,46 +9,59 @@ import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import CodeEditor, { editorHasError } from './CodeEditor';
 import { ROUTES, EDITOR_HEIGHT } from '../constants';
 import { ErrorObject } from "../types";
+import { STORAGE_PREFIX } from "../constants";
 
 interface SourcePanelProps {
-  onRunSource: (source: string) => void,
+  onSource: (source: string) => void,
+  onError?: (message: string) => void,
   extraErrors: ErrorObject[],
   placeholder?: string,
 }
 
-function SourcePanel({ onRunSource, extraErrors, placeholder }: SourcePanelProps) {
+function SourcePanel({ onSource, onError, extraErrors, placeholder }: SourcePanelProps) {
   const [source, setSource] = useState('');
   const [editor, setEditor] = useState<monacoEditor.editor.IStandaloneCodeEditor>(null);
   const [state, setState] = useState({ data: '', loading: true });
-  const location = useLocation();
-  const sourceUrl = new URLSearchParams(location.search).get('source');
-  const routeItem = ROUTES.find(item => item.path === location.pathname) || ROUTES[0];
+  const { search, pathname } = useLocation();
+  const sourceUrl = new URLSearchParams(search).get('source');
+  const routeItem = ROUTES.find(item => item.path === pathname) || ROUTES[0];
   const handleConvert = () => {
     if (editor) {
       if (editorHasError(editor)) {
-        // Toast show error
+        onError('Conversion failed due to errors in source text');
       } else {
-        onRunSource(source);
+        localStorage.setItem(STORAGE_PREFIX + pathname, source);
+        onSource(source);
       }
     }
   }
   useEffect(() => {
-    if (!sourceUrl) {
-      if (placeholder) {
-        setState({data: placeholder, loading: false});
-        setSource(placeholder);
-        onRunSource(placeholder);
-      } else {
-        setState({data: '', loading: false});
-      }
-      return;
+    const initSource = (source) => {
+        setState({data: source, loading: false});
+        setSource(source);
+        onSource(source);
     }
-    fetch(sourceUrl).then(res => res.text()).then(data => {
-      setState({data, loading: false});
-      setSource(data);
-      onRunSource(data);
-    })
-  }, [sourceUrl]);
+    if (sourceUrl) {
+      fetch(sourceUrl).then(res => res.text()).then(data => {
+        setState({data, loading: false});
+        setSource(data);
+        onSource(data);
+      }).catch(err => {
+        onError(`Fetch source failed, ${err.message}`);
+      })
+    } else {
+      const value = localStorage.getItem(STORAGE_PREFIX + pathname);
+      if (value) {
+        initSource(value);
+        return;
+      } 
+      if (placeholder) {
+        initSource(placeholder);
+        return;
+      }
+      setState({data: '', loading: false});
+    }
+  }, [sourceUrl, pathname]);
 
   return (
     <div>

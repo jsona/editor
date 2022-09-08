@@ -4,6 +4,8 @@ export const EDITOR_HEIGHT = "88vh";
 
 export const TITLE = 'JSONA Editor'
 
+export const STORAGE_PREFIX = 'store_';
+
 export const ROUTES = [
   {
     path: '/',

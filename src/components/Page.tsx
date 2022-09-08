@@ -3,6 +3,8 @@ import { useLocation } from 'react-router-dom';
 import { useState, useEffect, ReactElement } from 'react';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
+import ToastContainer from 'react-bootstrap/ToastContainer';
+import Toast from 'react-bootstrap/Toast';
 import CodeEditor from './CodeEditor';
 import SourcePanel from './SourcePanel';
 import { EDITOR_HEIGHT } from '../constants';
@@ -26,6 +28,7 @@ interface TabConfig {
 
 function Page({ tabs, placeholder }: PageProps) {
   const [source, setSource] = useState('');
+  const [error, setError] = useState('');
   const [sourceErrors, setSourceErrors] = useState([]);
   const location = useLocation();
   const tabKey = new URLSearchParams(location.search).get('tab');
@@ -48,35 +51,46 @@ function Page({ tabs, placeholder }: PageProps) {
     setSource(source);
   }
   return (
-    <div className="d-flex">
-      <div css={panelStyle}>
-        <SourcePanel
-          placeholder={placeholder}
-          extraErrors={sourceErrors}
-          onRunSource={handleSource}
-        />
-      </div>
-      <div css={panelStyle}>
-        <Tabs
-          defaultActiveKey={tab}
-          className="mb-3"
-          onSelect={(key) => {
-            setTarget(null);
-            setTab(key);
-          }}
-        >
-          {tabs.map((item) => {
-            return (
-              <Tab
-                key={item.name}
-                eventKey={item.name}
-                title={item.file}
-              >
-                {item.render(target, item)}
-              </Tab>
-            )
-          })}
-        </Tabs>
+    <div>
+      <ToastContainer className="p-3" position="top-end">
+        <Toast show={!!error} onClose={() => setError('')}>
+          <Toast.Header>
+            <strong className="me-auto">Error</strong>
+          </Toast.Header>
+          <Toast.Body>{error}</Toast.Body>
+        </Toast>
+      </ToastContainer>
+      <div className="d-flex">
+        <div css={panelStyle}>
+          <SourcePanel
+            placeholder={placeholder}
+            extraErrors={sourceErrors}
+            onSource={handleSource}
+            onError={err => setError(err)}
+          />
+        </div>
+        <div css={panelStyle}>
+          <Tabs
+            defaultActiveKey={tab}
+            className="mb-3"
+            onSelect={(key) => {
+              setTarget(null);
+              setTab(key);
+            }}
+          >
+            {tabs.map((item) => {
+              return (
+                <Tab
+                  key={item.name}
+                  eventKey={item.name}
+                  title={item.file}
+                >
+                  {item.render(target, item)}
+                </Tab>
+              )
+            })}
+          </Tabs>
+        </div>
       </div>
     </div>
   )
