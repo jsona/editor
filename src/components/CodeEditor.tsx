@@ -1,5 +1,7 @@
 import React, { createRef } from 'react';
 import 'monaco-editor/esm/vs/editor/editor.all.js';
+import 'monaco-editor/esm/vs/editor/standalone/browser/quickAccess/standaloneCommandsQuickAccess';
+import 'monaco-editor/esm/vs/editor/standalone/browser/quickAccess/standaloneGotoSymbolQuickAccess';
 import * as monacoEditor from 'monaco-editor/esm/vs/editor/editor.api';
 import 'monaco-editor/esm/vs/language/json/monaco.contribution';
 import 'monaco-editor/esm/vs/basic-languages/yaml/yaml.contribution';
@@ -49,9 +51,6 @@ class CodeEditor extends React.Component<CodeEditorProps, any> {
     const editor = monacoEditor.editor.create(this.container.current!, {
       model: monacoEditor.editor.getModel(modelUri) || monacoEditor.editor.createModel(value, null, modelUri),
       ...options,
-    });
-    editor.addCommand(monacoEditor.KeyCode.Alt | monacoEditor.KeyCode.Shift | monacoEditor.KeyCode.KeyF, () => {
-      editor.trigger('editor', 'editor.action.formatDocument', null);
     });
     if (editorDidMount) editorDidMount(editor, monacoEditor);
     this.disposables.push(editor.onDidChangeModelContent(() => {
