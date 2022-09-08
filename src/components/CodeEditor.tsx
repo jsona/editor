@@ -107,7 +107,7 @@ class CodeEditor extends React.Component<CodeEditorProps, any> {
           return {
             ...loc,
             message: item.message,
-            severity: 8, // Error
+            severity: monacoEditor.MarkerSeverity.Error,
           }
         });
         monacoEditor.editor.setModelMarkers(this.editor.getModel(), MARKER_OWNER, markers);
@@ -125,3 +125,8 @@ class CodeEditor extends React.Component<CodeEditorProps, any> {
 }
 
 export default CodeEditor;
+
+export function editorHasError(editor: monacoEditor.editor.IStandaloneCodeEditor) {
+    let markers = monacoEditor.editor.getModelMarkers({ resource: editor.getModel().uri });
+    return !!markers.find(v => v.owner !== MARKER_OWNER && v.severity === monacoEditor.MarkerSeverity.Error)
+}

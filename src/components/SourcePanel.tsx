@@ -6,15 +6,17 @@ import Tabs from 'react-bootstrap/Tabs';
 import * as monacoEditor from 'monaco-editor/esm/vs/editor/editor.api';
 import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
-import CodeEditor, { MARKER_OWNER } from './CodeEditor';
+import CodeEditor, { editorHasError } from './CodeEditor';
 import { ROUTES, EDITOR_HEIGHT } from '../constants';
 import { ErrorObject } from "../types";
+
 interface SourcePanelProps {
   onRunSource: (source: string) => void,
   extraErrors: ErrorObject[],
+  placeholder?: string,
 }
 
-function SourcePanel({ onRunSource, extraErrors }: SourcePanelProps) {
+function SourcePanel({ onRunSource, extraErrors, placeholder }: SourcePanelProps) {
   const [source, setSource] = useState('');
   const [editor, setEditor] = useState<monacoEditor.editor.IStandaloneCodeEditor>(null);
   const [state, setState] = useState({ data: '', loading: true });
@@ -23,8 +25,7 @@ function SourcePanel({ onRunSource, extraErrors }: SourcePanelProps) {
   const routeItem = ROUTES.find(item => item.path === location.pathname) || ROUTES[0];
   const handleConvert = () => {
     if (editor) {
-      let markers = monacoEditor.editor.getModelMarkers({ resource: editor.getModel().uri });
-      if (markers.find(v => v.owner !== MARKER_OWNER)) {
+      if (editorHasError(editor)) {
         // Toast show error
       } else {
         onRunSource(source);
@@ -33,7 +34,13 @@ function SourcePanel({ onRunSource, extraErrors }: SourcePanelProps) {
   }
   useEffect(() => {
     if (!sourceUrl) {
-      setState({data: '', loading: false});
+      if (placeholder) {
+        setState({data: placeholder, loading: false});
+        setSource(placeholder);
+        onRunSource(placeholder);
+      } else {
+        setState({data: '', loading: false});
+      }
       return;
     }
     fetch(sourceUrl).then(res => res.text()).then(data => {

@@ -1,0 +1,14 @@
+// A sample json schema
+
+{ @jsonaschema("schema")
+  bool: true,
+  int: 3, @schema({maximum:9})
+  number: 3.14,
+  string: "abc",
+  array: [
+    3
+  ],
+  object: {
+    key: "value" @pattern(".*")
+  }
+}

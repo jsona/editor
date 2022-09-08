@@ -7,28 +7,6 @@ import CodeEditor from './CodeEditor';
 import SourcePanel from './SourcePanel';
 import { EDITOR_HEIGHT } from '../constants';
 
-export function makeConvertFn(parse: (source: string) => any) {
-  return (source: string) => {
-    if (!source) return null;
-    const out = parse(source)
-    if (out["errors"]) throw out["errors"];
-    return out.value;
-  }
-}
-
-export function renderEditor(target: string, tabConfig: TabConfig) {
-  return <CodeEditor
-    value={target ? JSON.stringify(target, null, 2) : ''}
-    uri={`inmemory:///${tabConfig.file}`}
-    options={{
-      tabSize: 2,
-      automaticLayout: true,
-      lineNumbers: 'off',
-    }}
-    height={EDITOR_HEIGHT}
-  />
-}
-
 const panelStyle = css`
   width: 100%;
   border: 1px solid lightgrey;
@@ -36,6 +14,7 @@ const panelStyle = css`
 
 interface PageProps {
   tabs: TabConfig[],
+  placeholder?: string,
 }
 
 interface TabConfig {
@@ -45,7 +24,7 @@ interface TabConfig {
   render: (target: string, tab: TabConfig) => ReactElement,
 }
 
-function Page({ tabs }: PageProps) {
+function Page({ tabs, placeholder }: PageProps) {
   const [source, setSource] = useState('');
   const [sourceErrors, setSourceErrors] = useState([]);
   const location = useLocation();
@@ -54,12 +33,16 @@ function Page({ tabs }: PageProps) {
   const [target, setTarget] = useState(null);
   useEffect(() => {
     const converter = tabs.find(v => v.name === tab);
-    try {
-      setTarget(converter.convert(source))
-      setSourceErrors([]);
-    } catch (errors) {
-      setSourceErrors(errors);
-    }
+    (async () => {
+      try {
+        const target = await converter.convert(source)
+        setTarget(target)
+        setSourceErrors([]);
+      } catch (errors) {
+        setSource('');
+        setSourceErrors(errors);
+      }
+    })();
   }, [source, tab]);
   const handleSource = (source: string) => {
     setSource(source);
@@ -67,32 +50,61 @@ function Page({ tabs }: PageProps) {
   return (
     <div className="d-flex">
       <div css={panelStyle}>
-        <SourcePanel extraErrors={sourceErrors} onRunSource={handleSource} />
+        <SourcePanel
+          placeholder={placeholder}
+          extraErrors={sourceErrors}
+          onRunSource={handleSource}
+        />
       </div>
       <div css={panelStyle}>
-      <Tabs
-        defaultActiveKey={tab}
-        className="mb-3"
-        onSelect={(key) => {
-          setTarget(null);
-          setTab(key);
-        }}
-      >
-        {tabs.map((item) => {
-          return (
-            <Tab
-              key={item.name}
-              eventKey={item.name}
-              title={item.file}
-            >
-              {item.render(target, item)}
-            </Tab>
-          )
-        })}
-      </Tabs>
+        <Tabs
+          defaultActiveKey={tab}
+          className="mb-3"
+          onSelect={(key) => {
+            setTarget(null);
+            setTab(key);
+          }}
+        >
+          {tabs.map((item) => {
+            return (
+              <Tab
+                key={item.name}
+                eventKey={item.name}
+                title={item.file}
+              >
+                {item.render(target, item)}
+              </Tab>
+            )
+          })}
+        </Tabs>
       </div>
     </div>
   )
 }
 
 export default Page;
+
+export function makeConvertFn(
+  parse: (source: string) => any,
+  map: (value: any) => any,
+) {
+  return async (source: string) => {
+    if (!source) return null;
+    const out = await parse(source)
+    if (out["errors"]) throw out["errors"];
+    return map(out.value);
+  }
+}
+
+export function renderEditor(target: string, tabConfig: TabConfig) {
+  return <CodeEditor
+    value={target}
+    uri={`inmemory:///${tabConfig.file}`}
+    options={{
+      tabSize: 2,
+      automaticLayout: true,
+      lineNumbers: 'off',
+    }}
+    height={EDITOR_HEIGHT}
+  />
+}

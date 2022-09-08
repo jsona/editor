@@ -9,18 +9,28 @@ export const ROUTES = [
     path: '/',
     title: 'Core',
     sourceFile: 'source.jsona',
-    page: () => React.lazy(() => import('./pages/PageCore')),
+    page: () => loadable(() => import('./pages/PageCore')),
   },
   {
     path: '/schema',
     title: 'Schema',
     sourceFile: 'source.jsona',
-    page: () => React.lazy(() => import('./pages/PageSchema')),
+    page: () => loadable(() => import('./pages/PageSchema')),
   },
   {
     path: '/openapi',
     title: 'Openapi',
     sourceFile: 'source.openapi.jsona',
-    page: () => React.lazy(() => import('./pages/PageOpenapi')),
+    page: () => loadable(() => import('./pages/PageOpenapi')),
   },
 ]
+
+function loadable(load) {
+  return React.lazy(async () => {
+    const ret = await load()
+    if (ret.__tla) {
+      await ret.__tla
+    }
+    return ret;
+  })
+}

@@ -1,0 +1,37 @@
+// A sample openapi
+
+{ @jsonaschema("openapi")
+  @openapi({
+    servers: [
+      {
+        url: "https://httpbin.org"
+      }
+    ]
+  })
+  getIp: { @endpoint({summary:"Returns the requester's IP Address."})
+    route: "GET /ip",
+    res: {
+      200: {
+        origin: "1.1.1.1",
+      }
+    }
+  },
+  postAnything: { @endpoint({summary:"Returns anything that is passed to request"})
+    route: "POST /anything/{}",
+    req: {
+      params: {
+        id: 32,
+      },
+      query: {
+        order: 'asc' @optional
+      },
+      headers: {
+        'X-API': "k123456",
+      },
+      body: {
+        foo: 1,
+        bar: "d"
+      }
+    },
+  }
+}
