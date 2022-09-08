@@ -3,7 +3,9 @@ import { parse } from "@jsona/openapi";
 import 'swagger-ui-react/swagger-ui.css';
 import yaml from 'js-yaml';
 import SwaggerUI from 'swagger-ui-react';
+import { css } from '@emotion/react';
 import PLACEHOLDER from "../../samples/openapi.jsona";
+import { EDITOR_HEIGHT } from '../constants';
 
 function PageOpenapi() {
   return <Page placeholder={PLACEHOLDER} tabs={[
@@ -15,7 +17,17 @@ function PageOpenapi() {
         if (!target) {
           return <div></div>
         } else {
-          return <SwaggerUI spec={target} />
+          return <div
+            css={css`
+                max-height: ${EDITOR_HEIGHT};
+                overflow: auto;
+            `}
+          >
+            <SwaggerUI
+              displayOperationId={true}
+              spec={target}
+            />
+          </div>
         }
       }
     },
