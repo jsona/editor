@@ -1,12 +1,13 @@
 // A sample json schema
 
 { @jsonaschema("schema")
-  bool: true,
+  bool: true, @default
   int: 3, @schema({maximum:9})
   number: 3.14,
   string: "abc",
-  array: [
-    3
+  array: [ @compound("oneOf")
+    3,
+    "abc",
   ],
   object: {
     key: "value" @pattern(".*")

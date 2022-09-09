@@ -8,14 +8,6 @@
       }
     ]
   })
-  getIp: { @endpoint({summary:"Returns the requester's IP Address."})
-    route: "GET /ip",
-    res: {
-      200: {
-        origin: "1.1.1.1",
-      }
-    }
-  },
   postAnything: { @endpoint({summary:"Returns anything that is passed to request"})
     route: "POST /anything/{}",
     req: {
@@ -26,12 +18,25 @@
         order: 'asc' @optional
       },
       headers: {
-        'X-API': "k123456",
+        'X-API': "x123456",
       },
       body: {
         foo: 1,
         bar: "d"
       }
     },
+    res: {
+      200: {
+        url: "https://httpbin.org/anything/32?order=asc",
+        method: "POST",
+        json: {
+          bar: "abc",
+          foo: 3
+        },
+        headers: {
+          'X-Api': "x123456"
+        }
+      }
+    }
   }
 }
