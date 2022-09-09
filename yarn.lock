@@ -362,7 +362,7 @@
     "@jridgewell/set-array" "^1.0.0"
     "@jridgewell/sourcemap-codec" "^1.4.10"
 
-"@jridgewell/gen-mapping@^0.3.2":
+"@jridgewell/gen-mapping@^0.3.0", "@jridgewell/gen-mapping@^0.3.2":
   version "0.3.2"
   resolved "https://registry.yarnpkg.com/@jridgewell/gen-mapping/-/gen-mapping-0.3.2.tgz#c1aedc61e853f2bb9f5dfe6d4442d3b565b253b9"
   integrity sha512-mh65xKQAzI6iBcFzwv28KVWSmCkdRBWoOh+bYQGW3+6OZvbbN3TqMGo5hqYxQniRcH9F2VZIoJCm4pa3BPDK/A==
@@ -381,6 +381,14 @@
   resolved "https://registry.yarnpkg.com/@jridgewell/set-array/-/set-array-1.1.2.tgz#7c6cf998d6d20b914c0a55a91ae928ff25965e72"
   integrity sha512-xnkseuNADM0gt2bs+BvhO0p78Mk762YnZdsuzFV018NoG1Sj1SCQvpSqa7XUaTam5vAGasABV9qXASMKnFMwMw==
 
+"@jridgewell/source-map@^0.3.2":
+  version "0.3.2"
+  resolved "https://registry.yarnpkg.com/@jridgewell/source-map/-/source-map-0.3.2.tgz#f45351aaed4527a298512ec72f81040c998580fb"
+  integrity sha512-m7O9o2uR8k2ObDysZYzdfhb08VuEml5oWGiosa1VdaPZ/A6QyPkAJuwN0Q1lhULOf6B7MtQmHENS743hWtCrgw==
+  dependencies:
+    "@jridgewell/gen-mapping" "^0.3.0"
+    "@jridgewell/trace-mapping" "^0.3.9"
+
 "@jridgewell/sourcemap-codec@^1.4.10":
   version "1.4.14"
   resolved "https://registry.yarnpkg.com/@jridgewell/sourcemap-codec/-/sourcemap-codec-1.4.14.tgz#add4c98d341472a289190b424efbdb096991bb24"
@@ -394,16 +402,22 @@
     "@jridgewell/resolve-uri" "^3.0.3"
     "@jridgewell/sourcemap-codec" "^1.4.10"
 
-"@jsona/core@file:../jsona/js/core":
-  version "0.1.4"
+"@jsona/core@^0.2.0":
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/@jsona/core/-/core-0.2.0.tgz#26b93d4c086814f72480c2639bd6a02b7a50d323"
+  integrity sha512-apQAjWDOzvT9qXwgJHvoAVIml4G0KnMUxrTi3oRQPTgJc45ciARG69wldxzxaP0lcgEaezUDFTmet4Ch+RKTkg==
 
-"@jsona/openapi@file:../openapi/js/openapi":
-  version "0.2.1"
+"@jsona/openapi@^0.2.3":
+  version "0.2.3"
+  resolved "https://registry.yarnpkg.com/@jsona/openapi/-/openapi-0.2.3.tgz#9cd87701d77a26985a281dba388bb205b80ee0ec"
+  integrity sha512-Ufgr2ZdVgmqTsN/vyR0H5Xc/uhvDAOD4FkC1AXxmTa1V3gW9rhWKbWWYUS+Z9UfdhtOCb1SPHNXV7hfhqnM7pA==
   dependencies:
     openapi-types "^12.0.2"
 
-"@jsona/schema@file:../jsona/js/schema":
-  version "0.1.0"
+"@jsona/schema@^0.2.0":
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/@jsona/schema/-/schema-0.2.0.tgz#5d82e6e6f560d443b88dbd082bbc39be6d9a0da8"
+  integrity sha512-0B7up8syJMaQAoycFhGk2kO2Qc5xw/EazS53grAOYx90wykX+0NUqGYttCIhk0tbUBj8B4uvN4pXHYmIxo5V0Q==
   dependencies:
     json-schema-typed "^8.0.1"
 
@@ -641,7 +655,7 @@
     magic-string "^0.26.2"
     react-refresh "^0.14.0"
 
-acorn@^8.4.0:
+acorn@^8.4.0, acorn@^8.5.0:
   version "8.8.0"
   resolved "https://registry.yarnpkg.com/acorn/-/acorn-8.8.0.tgz#88c0187620435c7f6015803f5539dae05a9dbea8"
   integrity sha512-QOxyigPVrpZ2GXT+PFyZTl6TtOFc5egxHIP9IlQ+RbupQuX4RkT/Bee4/kQuC02Xkzg84JcT7oLYtDIQxp+v7w==
@@ -714,6 +728,11 @@ browserslist@^4.20.2:
     node-releases "^2.0.6"
     update-browserslist-db "^1.0.5"
 
+buffer-from@^1.0.0:
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/buffer-from/-/buffer-from-1.1.2.tgz#2b146a6fd72e80b4f55d255f35ed59a3a9a41bd5"
+  integrity sha512-E+XQCRwSbaaiChtv6k6Dwgc+bx+Bs6vuKJHHl5kox/BaKbhiXzqQOwK4cO22yElGp2OCmjwVhT3HmxgyPGnJfQ==
+
 call-bind@^1.0.0:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/call-bind/-/call-bind-1.0.2.tgz#b1d4e89e688119c3c9a903ad30abb2f6a919be3c"
@@ -777,6 +796,11 @@ comma-separated-tokens@^1.0.0:
   version "1.0.8"
   resolved "https://registry.yarnpkg.com/comma-separated-tokens/-/comma-separated-tokens-1.0.8.tgz#632b80b6117867a158f1080ad498b2fbe7e3f5ea"
   integrity sha512-GHuDRO12Sypu2cV70d1dkA2EUmXHgntrzbpvOB+Qy+49ypNfGgFQIC2fhhXbnyrJRynDCAARsT7Ou0M6hirpfw==
+
+commander@^2.20.0:
+  version "2.20.3"
+  resolved "https://registry.yarnpkg.com/commander/-/commander-2.20.3.tgz#fd485e84c03eb4881c20722ba48035e8531aeb33"
+  integrity sha512-GpVkmM8vF2vQUkj2LvZmD35JxeJOLCwJ9cUkugyk2nuhbv3+mJvpLYYt+0+USMxE+oj+ey/lJEnhZw75x/OMcQ==
 
 concat-map@0.0.1:
   version "0.0.1"
@@ -1371,12 +1395,12 @@ monaco-editor@^0.34.0:
   resolved "https://registry.yarnpkg.com/monaco-editor/-/monaco-editor-0.34.0.tgz#b1749870a1f795dbfc4dc03d8e9b646ddcbeefa7"
   integrity sha512-VF+S5zG8wxfinLKLrWcl4WUizMx+LeJrG4PM/M78OhcwocpV0jiyhX/pG6Q9jIOhrb/ckYi6nHnaR5OojlOZCQ==
 
-"monaco-jsona@file:../jsona/editors/monaco":
-  version "0.1.2"
+monaco-jsona@^0.2.0:
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/monaco-jsona/-/monaco-jsona-0.2.0.tgz#d52d28937b5654bcd65919277d954c62c3089abf"
+  integrity sha512-x/sfwO+EltJdn6WICjgP7W8fCDE8mJ/JFWVpbvncdZ+mpkEnozcf/B77olXkvupLRskGi31y6zYh/M1vuqM6Mw==
   dependencies:
     monaco-languageclient "^3.0.1"
-    vite-plugin-top-level-await "^1.1.1"
-    vite-plugin-wasm "^2.1.0"
     vscode-languageserver-protocol "^3.17.2"
 
 monaco-languageclient@^3.0.1:
@@ -1833,10 +1857,23 @@ source-map-js@^1.0.2:
   resolved "https://registry.yarnpkg.com/source-map-js/-/source-map-js-1.0.2.tgz#adbc361d9c62df380125e7f161f71c826f1e490c"
   integrity sha512-R0XvVJ9WusLiqTCEiGCmICCMplcCkIwwR11mOSD9CR5u+IXYdiseeEuXCVAjS54zqwkLcPNnmU4OeJ6tUrWhDw==
 
+source-map-support@~0.5.20:
+  version "0.5.21"
+  resolved "https://registry.yarnpkg.com/source-map-support/-/source-map-support-0.5.21.tgz#04fe7c7f9e1ed2d662233c28cb2b35b9f63f6e4f"
+  integrity sha512-uBHU3L3czsIyYXKX88fdrGovxdSCoTGDRZ6SYXtSRxLZUzHg5P/66Ht6uoUlHu9EZod+inXhKo3qQgwXUT/y1w==
+  dependencies:
+    buffer-from "^1.0.0"
+    source-map "^0.6.0"
+
 source-map@^0.5.7:
   version "0.5.7"
   resolved "https://registry.yarnpkg.com/source-map/-/source-map-0.5.7.tgz#8a039d2d1021d22d1ea14c80d8ea468ba2ef3fcc"
   integrity sha512-LbrmJOMUSdEVxIKvdcJzQC+nQhe8FUZQTXQy6+I75skNgn3OoQ0DZA8YnFa7gp8tqtL3KPf1kmo0R5DoApeSGQ==
+
+source-map@^0.6.0:
+  version "0.6.1"
+  resolved "https://registry.yarnpkg.com/source-map/-/source-map-0.6.1.tgz#74722af32e9614e9c287a8d0bbde48b5e2f1a263"
+  integrity sha512-UjgapumWlbMhkBgzT7Ykc5YXUT46F0iKu8SGXq0bcwP5dz/h0Plj6enJqjz1Zbq2l5WaqYnrVbwWOWMyF3F47g==
 
 sourcemap-codec@^1.4.8:
   version "1.4.8"
@@ -1927,6 +1964,16 @@ swagger-ui-react@^4.14.0:
     xml "=1.0.1"
     xml-but-prettier "^1.0.1"
     zenscroll "^4.0.2"
+
+terser@^5.15.0:
+  version "5.15.0"
+  resolved "https://registry.yarnpkg.com/terser/-/terser-5.15.0.tgz#e16967894eeba6e1091509ec83f0c60e179f2425"
+  integrity sha512-L1BJiXVmheAQQy+as0oF3Pwtlo4s3Wi1X2zNZ2NxOB4wx9bdS9Vk67XQENLFdLYGCK/Z2di53mTj/hBafR+dTA==
+  dependencies:
+    "@jridgewell/source-map" "^0.3.2"
+    acorn "^8.5.0"
+    commander "^2.20.0"
+    source-map-support "~0.5.20"
 
 to-fast-properties@^2.0.0:
   version "2.0.0"

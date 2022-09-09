@@ -8,6 +8,9 @@ import topLevelAwait from 'vite-plugin-top-level-await';
 // https://vitejs.dev/config/
 export default defineConfig({
   base: '/editor/',
+  build: {
+    minify: 'terser',
+  },
   plugins: [
     wasm(),
     topLevelAwait(),
