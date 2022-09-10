@@ -27,6 +27,7 @@ function PageOpenapi() {
           >
             <SwaggerUI
               displayOperationId={true}
+              url={''}
               spec={target}
             />
           </div>

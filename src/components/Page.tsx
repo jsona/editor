@@ -5,6 +5,7 @@ import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
 import ToastContainer from 'react-bootstrap/ToastContainer';
 import Toast from 'react-bootstrap/Toast';
+import update from 'immutability-helper';
 import CodeEditor from './CodeEditor';
 import SourcePanel from './SourcePanel';
 import { EDITOR_HEIGHT } from '../constants';
@@ -28,34 +29,35 @@ interface TabConfig {
 }
 
 function Page({ tabs, placeholder }: PageProps) {
-  const [source, setSource] = useState('');
+  const [source, setSource] = useState({ value: '', ver: 0 });
   const [error, setError] = useState('');
-  const [target, setTarget] = useState({ value: '', converting: false });
+  const [converting, setConverting] = useState(false);
+  const [target, setTarget] = useState(tabs.map(() => ({ value: '', ver: source.ver })));
   const [sourceErrors, setSourceErrors] = useState([]);
   const location = useLocation();
   const tabKey = new URLSearchParams(location.search).get('tab');
   const [tab, setTab] = useState((tabs.find(v => v.name == tabKey) || tabs[0])?.name);
+  const tabIdx = tabs.findIndex(v => v.name === tab);
   useEffect(() => {
-    if (source === '') {
-      setTarget({ value: '', converting: false });
-      setSourceErrors([]);
+    if (source.ver === target[tabIdx].ver) {
       return;
     }
-    setTarget({ value: '', converting: true });
-    const converter = tabs.find(v => v.name === tab);
+    setConverting(true);
     (async () => {
       try {
-        const value = await converter.convert(source)
-        setTarget({ value, converting: false });
+        const value = await tabs[tabIdx].convert(source.value)
+        setConverting(false);
+        setTarget(v => update(v, {[tabIdx]: { $set: { value, ver: source.ver } }}));
         setSourceErrors([]);
       } catch (errors) {
-        setTarget({ value: '', converting: false });
+        setConverting(false);
+        setTarget(v => update(v, {[tabIdx]: { $set: { value: '', ver: source.ver } }}));
         setSourceErrors(errors);
       }
     })();
   }, [source, tab]);
   const handleSource = (source: string) => {
-    setSource(source);
+    setSource(v => ({ value: source, ver: v.ver + 1 }));
   }
   return (
     <div>
@@ -84,14 +86,15 @@ function Page({ tabs, placeholder }: PageProps) {
               setTab(key);
             }}
           >
-            {tabs.map((item) => {
+            {tabs.map((item, i) => {
+              const elem = converting ? <Loading /> : item.render(target[i].value, item)
               return (
                 <Tab
                   key={item.name}
                   eventKey={item.name}
                   title={item.file}
                 >
-                  {target.converting ? <Loading /> : item.render(target.value, item)}
+                  {elem}
                 </Tab>
               )
             })}
