@@ -9,15 +9,6 @@ import { EDITOR_HEIGHT } from '../constants';
 
 const parse = (v: string) => init().then(mod => mod.parse(v));
 
-export function cacheInit<I, O>(init: (input: I) => Promise<O>, input?: I) {
-  let cached: O;
-  return async () => {
-    if (cached) return cached;
-    cached = await init(input);
-    return cached
-  }
-}
-
 function PageOpenapi() {
   return <Page placeholder={PLACEHOLDER} tabs={[
     {

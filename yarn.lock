@@ -394,22 +394,22 @@
     "@jridgewell/resolve-uri" "^3.0.3"
     "@jridgewell/sourcemap-codec" "^1.4.10"
 
-"@jsona/core@^0.2.1":
-  version "0.2.1"
-  resolved "https://registry.yarnpkg.com/@jsona/core/-/core-0.2.1.tgz#650c77a66159e4f110431362ff18d73b152f82ab"
-  integrity sha512-YdT9QB/2cvYsPtnYpHMOj4yMy2yN5fTukAnn5pvhp31Lbe49cwl+in2C056GVhuCDF5k3X3ZNCcZpXgrzlzgrg==
+"@jsona/core@^0.2.3":
+  version "0.2.3"
+  resolved "https://registry.yarnpkg.com/@jsona/core/-/core-0.2.3.tgz#457b5d7cece44f66fc0596f5d99f31248d5d584f"
+  integrity sha512-kqNM2gyMvZr6dErvxO6lTcapO5MU8bBxjO7IwpxfJGdnhaK95yQLKEFUcbQZLXBqIQjbg4J/u987NJDXGdqmfA==
 
-"@jsona/openapi@^0.2.4":
-  version "0.2.4"
-  resolved "https://registry.yarnpkg.com/@jsona/openapi/-/openapi-0.2.4.tgz#2f3a2db6f2e9189d527de805f000e435f8a0495e"
-  integrity sha512-n5yUubtnclX8O1sjZ3/2/JVYm5yXxk6tAourp+UFh+qiQzr9TobFsMmUoMkZ+lSOewSoQH9IwcK13KZe7bcs3g==
+"@jsona/openapi@^0.2.5":
+  version "0.2.5"
+  resolved "https://registry.yarnpkg.com/@jsona/openapi/-/openapi-0.2.5.tgz#346d74d4f92460cb264feb90a5fdb797d9fd2bf2"
+  integrity sha512-bIw08OAEaMbNHWyDgW6fwiJNnnxcflrKKWGcf9csgphHBArpkBKWRZoAtDt/5bXgAXmyYmaVUYsoUVPGme3KtQ==
   dependencies:
     openapi-types "^12.0.2"
 
-"@jsona/schema@^0.2.1":
-  version "0.2.1"
-  resolved "https://registry.yarnpkg.com/@jsona/schema/-/schema-0.2.1.tgz#b7eb34fb65b192e4b1ce7badf392d4b1c381c10f"
-  integrity sha512-tGc6pC7rrdQU178nbE99Nf/QP2q4HqQPXPE21CZTiXZy9nI7A0gVeRjFxlKP6sLr+/dbtYqrGHhk++LuhNgSPA==
+"@jsona/schema@^0.2.3":
+  version "0.2.3"
+  resolved "https://registry.yarnpkg.com/@jsona/schema/-/schema-0.2.3.tgz#82b4ac5c9aa87112d15c5d1ef19060b6a2b75c80"
+  integrity sha512-ilcg06905nxNxxXJeHRTpCI0nPnO4klkB+jUbB6AgD92fliLRL4g7eBAuxCuBf4uCmBkehy8/WzlzPyxgejV+Q==
   dependencies:
     json-schema-typed "^8.0.1"
 

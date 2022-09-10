@@ -9,9 +9,9 @@
   },
   "dependencies": {
     "@emotion/react": "^11.10.4",
-    "@jsona/core": "^0.2.1",
-    "@jsona/openapi": "^0.2.4",
-    "@jsona/schema": "^0.2.1",
+    "@jsona/core": "^0.2.3",
+    "@jsona/openapi": "^0.2.5",
+    "@jsona/schema": "^0.2.3",
     "bootswatch": "^5.2.0",
     "classnames": "^2.3.1",
     "js-yaml": "^4.1.0",

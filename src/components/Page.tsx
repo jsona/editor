@@ -8,6 +8,7 @@ import Toast from 'react-bootstrap/Toast';
 import CodeEditor from './CodeEditor';
 import SourcePanel from './SourcePanel';
 import { EDITOR_HEIGHT } from '../constants';
+import Loading from './Loading';
 
 const panelStyle = css`
   width: 100%;
@@ -29,20 +30,26 @@ interface TabConfig {
 function Page({ tabs, placeholder }: PageProps) {
   const [source, setSource] = useState('');
   const [error, setError] = useState('');
+  const [target, setTarget] = useState({ value: '', converting: false });
   const [sourceErrors, setSourceErrors] = useState([]);
   const location = useLocation();
   const tabKey = new URLSearchParams(location.search).get('tab');
   const [tab, setTab] = useState((tabs.find(v => v.name == tabKey) || tabs[0])?.name);
-  const [target, setTarget] = useState(null);
   useEffect(() => {
+    if (source === '') {
+      setTarget({ value: '', converting: false });
+      setSourceErrors([]);
+      return;
+    }
+    setTarget({ value: '', converting: true });
     const converter = tabs.find(v => v.name === tab);
     (async () => {
       try {
-        const target = await converter.convert(source)
-        setTarget(target)
+        const value = await converter.convert(source)
+        setTarget({ value, converting: false });
         setSourceErrors([]);
       } catch (errors) {
-        setSource('');
+        setTarget({ value: '', converting: false });
         setSourceErrors(errors);
       }
     })();
@@ -74,7 +81,6 @@ function Page({ tabs, placeholder }: PageProps) {
             defaultActiveKey={tab}
             className="mb-3"
             onSelect={(key) => {
-              setTarget(null);
               setTab(key);
             }}
           >
@@ -85,7 +91,7 @@ function Page({ tabs, placeholder }: PageProps) {
                   eventKey={item.name}
                   title={item.file}
                 >
-                  {item.render(target, item)}
+                  {target.converting ? <Loading /> : item.render(target.value, item)}
                 </Tab>
               )
             })}
