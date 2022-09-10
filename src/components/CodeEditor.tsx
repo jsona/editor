@@ -2,13 +2,13 @@ import React, { createRef } from 'react';
 import 'monaco-editor/esm/vs/editor/editor.all.js';
 import 'monaco-editor/esm/vs/editor/standalone/browser/quickAccess/standaloneCommandsQuickAccess';
 import 'monaco-editor/esm/vs/editor/standalone/browser/quickAccess/standaloneGotoSymbolQuickAccess';
-import * as monacoEditor from 'monaco-editor/esm/vs/editor/editor.api';
 import 'monaco-editor/esm/vs/language/json/monaco.contribution';
 import 'monaco-editor/esm/vs/basic-languages/yaml/yaml.contribution';
+import 'monaco-jsona';
 import JsonaWorker from 'monaco-jsona/jsona.worker.js?worker';
 import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
 import JsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker';
-import 'monaco-jsona';
+import * as monacoEditor from 'monaco-editor/esm/vs/editor/editor.api';
 import { ErrorObject } from '../types';
 
 

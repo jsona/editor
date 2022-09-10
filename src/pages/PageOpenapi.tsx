@@ -1,11 +1,22 @@
 import Page, { makeConvertFn, renderEditor } from '../components/Page';
-import { parse } from "@jsona/openapi";
+import init from "@jsona/openapi/index_web";
 import 'swagger-ui-react/swagger-ui.css';
 import yaml from 'js-yaml';
 import SwaggerUI from 'swagger-ui-react';
 import { css } from '@emotion/react';
 import PLACEHOLDER from "../../samples/openapi.jsona";
 import { EDITOR_HEIGHT } from '../constants';
+
+const parse = (v: string) => init().then(mod => mod.parse(v));
+
+export function cacheInit<I, O>(init: (input: I) => Promise<O>, input?: I) {
+  let cached: O;
+  return async () => {
+    if (cached) return cached;
+    cached = await init(input);
+    return cached
+  }
+}
 
 function PageOpenapi() {
   return <Page placeholder={PLACEHOLDER} tabs={[

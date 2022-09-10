@@ -1,8 +1,8 @@
 import Container from 'react-bootstrap/Container';
+import { Link, useLocation } from "react-router-dom";
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import classNames from 'classnames';
-import { Link, useLocation } from "react-router-dom";
 import { ROUTES, TITLE } from '../constants';
 
 function Header() {

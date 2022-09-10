@@ -1,6 +1,8 @@
 import Page, { makeConvertFn, renderEditor } from '../components/Page';
-import { parse } from "@jsona/schema";
+import init from "@jsona/schema/index_web";
 import PLACEHOLDER from "../../samples/schema.jsona";
+
+const parse = (v: string) => init().then(mod => mod.parse(v));
 
 function PageSchema() {
   return <Page placeholder={PLACEHOLDER} tabs={[
