@@ -4,7 +4,7 @@ import 'swagger-ui-react/swagger-ui.css';
 import yaml from 'js-yaml';
 import SwaggerUI from 'swagger-ui-react';
 import { css } from '@emotion/react';
-import PLACEHOLDER from "../../samples/openapi.jsona";
+import PLACEHOLDER from "../../samples/openapi.jsona?raw";
 import { EDITOR_HEIGHT } from '../constants';
 
 const parse = (v: string) => init().then(mod => mod.parse(v));

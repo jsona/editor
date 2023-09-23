@@ -1,6 +1,6 @@
 import Page, { makeConvertFn, renderEditor } from '../components/Page';
 import init from "@jsona/schema/index_web";
-import PLACEHOLDER from "../../samples/schema.jsona";
+import PLACEHOLDER from "../../samples/schema.jsona?raw";
 
 const parse = (v: string) => init().then(mod => mod.parse(v));
 

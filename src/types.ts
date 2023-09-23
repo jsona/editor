@@ -1,4 +1,3 @@
-
 export interface Range {
   start: Position;
   end: Position;
