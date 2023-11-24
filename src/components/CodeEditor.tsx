@@ -1,58 +1,39 @@
 import React, { createRef } from 'react';
-import 'monaco-editor/esm/vs/editor/editor.all.js';
-import 'monaco-editor/esm/vs/editor/standalone/browser/quickAccess/standaloneCommandsQuickAccess';
-import 'monaco-editor/esm/vs/editor/standalone/browser/quickAccess/standaloneGotoSymbolQuickAccess';
-import 'monaco-editor/esm/vs/language/json/monaco.contribution';
-import 'monaco-editor/esm/vs/basic-languages/yaml/yaml.contribution';
-import 'monaco-jsona';
-import JsonaWorker from 'monaco-jsona/jsona.worker.js?worker';
-import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
-import JsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker';
-import * as monacoEditor from 'monaco-editor/esm/vs/editor/editor.api';
+import * as MonacoEditor from 'monaco-editor/esm/vs/editor/editor.api';
+import { createConfiguredEditor } from 'vscode/monaco';
 import { ErrorObject } from '../types';
 
-
 export const MARKER_OWNER = "converter";
-
-// @ts-ignore
-self.MonacoEnvironment = {
-  getWorker(_: any, label: string) {
-    if (label === 'json') {
-      return new JsonWorker();
-    } else if (label === 'jsona') {
-      const jsonaWorker = new JsonaWorker();
-      // jsonaWorker.postMessage({ method: "lsp/debug" });
-      return jsonaWorker;
-    }
-    return new EditorWorker();
-  }
-};
 
 interface CodeEditorProps {
   uri: string,
   value: string,
   width?: string,
   height?: string,
-  options?: monacoEditor.editor.IStandaloneEditorConstructionOptions,
+  options?: MonacoEditor.editor.IStandaloneEditorConstructionOptions,
   extraErrors?: ErrorObject[],
   onChange?: (value: string) => void,
-  editorDidMount?: (editor: monacoEditor.editor.IStandaloneCodeEditor, monaco: typeof monacoEditor) => void,
-  editorWillUnmount?: (editor: monacoEditor.editor.IStandaloneCodeEditor, monaco: typeof monacoEditor) => void,
+  editorDidMount?: (editor: MonacoEditor.editor.IStandaloneCodeEditor, monaco: typeof MonacoEditor) => void,
+  editorWillUnmount?: (editor: MonacoEditor.editor.IStandaloneCodeEditor, monaco: typeof MonacoEditor) => void,
 }
 
 class CodeEditor extends React.Component<CodeEditorProps, any> {
   private container = createRef<HTMLDivElement>();
-  private editor?: monacoEditor.editor.IStandaloneCodeEditor;
-  private disposables: monacoEditor.IDisposable[] = [];
+  private editor?: MonacoEditor.editor.IStandaloneCodeEditor;
+  private disposables: MonacoEditor.IDisposable[] = [];
 
-  componentDidMount() {
+  async componentDidMount() {
     const { uri, value, options, editorDidMount, onChange } = this.props;
-    const modelUri = monacoEditor.Uri.parse(uri);
-    const editor = monacoEditor.editor.create(this.container.current!, {
-      model: monacoEditor.editor.getModel(modelUri) || monacoEditor.editor.createModel(value, null, modelUri),
+    const languageId = extractLanguageId(uri);
+    let create: any = MonacoEditor.editor.create;
+    if (languageId == 'jsona') {
+      create = createConfiguredEditor
+    }
+    const editor = create(this.container.current!, {
+      model: MonacoEditor.editor.createModel(value, languageId, MonacoEditor.Uri.parse(uri)),
       ...options,
     });
-    if (editorDidMount) editorDidMount(editor, monacoEditor);
+    if (editorDidMount) editorDidMount(editor, MonacoEditor);
     this.disposables.push(editor.onDidChangeModelContent(() => {
       if (onChange) onChange(editor.getValue());
     }));
@@ -60,24 +41,26 @@ class CodeEditor extends React.Component<CodeEditorProps, any> {
   }
 
   componentDidUpdate(prevProps: Readonly<CodeEditorProps>) {
-    if (prevProps.uri !== this.props.uri) {
+    let { uri, value } = this.props;
+    if (prevProps.uri !== uri) {
       let oldModel = this.editor.getModel();
+      const languageId = extractLanguageId(uri);
       this.editor.setModel(
-        monacoEditor.editor.createModel(
-          this.props.value,
-          null,
-          monacoEditor.Uri.parse(this.props.uri),
+        MonacoEditor.editor.createModel(
+          value,
+          languageId,
+          MonacoEditor.Uri.parse(uri),
         ),
       );
       if (oldModel) oldModel.dispose();
-    } else if (prevProps.value !== this.props.value) {
-      this.editor.setValue(this.props.value);
+    } else if (prevProps.value !== value) {
+      this.editor.setValue(value);
     }
   }
 
   componentWillUnmount() {
     const { editorWillUnmount } = this.props;
-    if (editorWillUnmount) editorWillUnmount(this.editor, monacoEditor);
+    if (editorWillUnmount) editorWillUnmount(this.editor, MonacoEditor);
     const model = this.editor.getModel();
     this.editor.dispose();
     if (model) model.dispose();
@@ -106,10 +89,10 @@ class CodeEditor extends React.Component<CodeEditorProps, any> {
           return {
             ...loc,
             message: item.message,
-            severity: monacoEditor.MarkerSeverity.Error,
+            severity: MonacoEditor.MarkerSeverity.Error,
           }
         });
-        monacoEditor.editor.setModelMarkers(this.editor.getModel(), MARKER_OWNER, markers);
+        MonacoEditor.editor.setModelMarkers(this.editor.getModel(), MARKER_OWNER, markers);
       }
     }
   }
@@ -125,7 +108,15 @@ class CodeEditor extends React.Component<CodeEditorProps, any> {
 
 export default CodeEditor;
 
-export function editorHasError(editor: monacoEditor.editor.IStandaloneCodeEditor) {
-    let markers = monacoEditor.editor.getModelMarkers({ resource: editor.getModel().uri });
-    return !!markers.find(v => v.owner !== MARKER_OWNER && v.severity === monacoEditor.MarkerSeverity.Error)
+export function editorHasError(editor: MonacoEditor.editor.IStandaloneCodeEditor) {
+    let markers = MonacoEditor.editor.getModelMarkers({ resource: editor.getModel().uri });
+    return !!markers.find(v => v.owner !== MARKER_OWNER && v.severity === MonacoEditor.MarkerSeverity.Error)
+}
+
+function extractLanguageId(uri: string) {
+  const path = new URL(uri).pathname;
+  const segments = path.split('/');
+  const filename = segments[segments.length - 1];
+  const parts = filename.split('.');
+  return parts[parts.length - 1];
 }
