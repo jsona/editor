@@ -10,6 +10,7 @@ import CodeEditor from './CodeEditor';
 import SourcePanel from './SourcePanel';
 import { EDITOR_HEIGHT } from '../constants';
 import Loading from './Loading';
+import { setupMonaco } from '../monaco';
 
 const panelStyle = css`
   width: 100%;
@@ -29,6 +30,7 @@ interface TabConfig {
 }
 
 function Page({ tabs, placeholder }: PageProps) {
+  const [setup, setSetup] = useState(false);
   const [source, setSource] = useState({ value: '', ver: 0 });
   const [error, setError] = useState('');
   const [converting, setConverting] = useState(false);
@@ -38,6 +40,16 @@ function Page({ tabs, placeholder }: PageProps) {
   const tabKey = new URLSearchParams(location.search).get('tab');
   const [tab, setTab] = useState((tabs.find(v => v.name == tabKey) || tabs[0])?.name);
   const tabIdx = tabs.findIndex(v => v.name === tab);
+  useEffect(() => {
+    (async () => {
+      try {
+        await setupMonaco()
+      } catch (err) {
+        console.error(err);
+      }
+      setSetup(true);
+    })()
+  }, []);
   useEffect(() => {
     if (source.ver === target[tabIdx].ver) {
       return;
@@ -58,6 +70,9 @@ function Page({ tabs, placeholder }: PageProps) {
   }, [source, tab]);
   const handleSource = (source: string) => {
     setSource(v => ({ value: source, ver: v.ver + 1 }));
+  }
+  if (!setup) {
+    return <></>;
   }
   return (
     <div>

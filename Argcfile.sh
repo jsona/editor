@@ -4,24 +4,23 @@ set -e
 
 # @cmd
 pkg.local() {
-    jsona=$HOME/jsona
-    yarn add $jsona/jsona/js/core $jsona/jsona/js/schema $jsona/jsona/editors/monaco
-    yarn add $HOME/jsona/openapi/jsona-wasm-openapi/pkg
+    rm -rf node_modules/@jsona
+    npm install ../jsona/js/core ../jsona/js/schema ../openapi/jsona-wasm-openapi ../jsona/editors/utils 
 }
 
 # @cmd
 pkg.remote() {
-    yarn add @jsona/core @jsona/schema @jsona/openapi monaco-jsona
+    npm install @jsona/core @jsona/schema @jsona/openapi @jsona/editor-utils
 }
 
 # @cmd
 build() {
-    yarn build
+    npm run build
 }
 
 # @cmd
 dev() {
-    yarn dev
+    npm run dev
 }
 
 eval "$(argc --argc-eval $0 "$@")"
