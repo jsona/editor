@@ -2,7 +2,7 @@
   "name": "@jsona/editor",
   "private": true,
   "type": "module",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "scripts": {
     "dev": "node --experimental-import-meta-resolve ./node_modules/vite/bin/vite.js",
     "clean": "rm -rf dist || rmdir /s /q dist",
