@@ -16,10 +16,20 @@ import '@codingame/monaco-vscode-json-default-extension';
 import '@codingame/monaco-vscode-theme-defaults-default-extension';
 
 
+let setupMonacoPromise: Promise<void> = null;
+
 export async function setupMonaco() {
-    if (globalThis.doneSetupMonaco) {
-        return;
+    if (setupMonacoPromise) {
+        return setupMonacoPromise
     }
+    setupMonacoPromise = new Promise((resolve, reject) => {
+        setupMonacoImpl().then(resolve, reject)
+    });
+
+    return setupMonacoPromise
+}
+
+async function setupMonacoImpl() {
     const serviceConfig = {
         userServices: {
             ...getThemeServiceOverride(),
